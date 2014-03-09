@@ -1,2 +1,73 @@
+$input-background-color: #333
+$input-foreground-color: #0d0
+
 body
+  margin: 0
   font-family: sans-serif
+  background: black
+  color: #0f0
+
+$section-padding: 20px
+// line up with chrome os white bar at the top
+$dt-width: 180px
+.section
+  border-bottom: 1px #444 solid
+  width: 800px - $section-padding * 2
+  padding: $section-padding
+
+  h1
+    margin: 0
+
+  $time-width: 100px - 1px - 1px
+  .time
+    float: right
+    text-align: right
+    input
+      width: $time-width
+      font-size: 30pt
+      text-align: right
+      background: black
+      color: $input-foreground-color
+      background-color: $input-background-color
+      border: 0
+    label
+      font-size: 15pt
+
+  dl
+    margin: 0
+    dt
+      display: block
+      margin-right: 10px
+      width: $dt-width
+      font-weight: bold
+      font-size: 20pt
+      float: left
+      text-align: right
+      text-transform: uppercase
+      clear: left
+      // line up with textarea text
+      padding-top: 2px
+    dd
+      margin: 0 0 0 $dt-width
+      font-size: 20pt
+      textarea
+        width: 800px - $section-padding * 2 - $dt-width - 10px - 10px - 10px - $time-width
+        height: 30px
+        background-color: $input-background-color
+        color: $input-foreground-color
+        border: 0
+        font-size: 20pt
+        font-family: sans-serif
+        // remove ugly gray right box in chrome os
+        overflow: hidden
+
+  button
+    background-color: green
+    color: black
+    border: 1px #080 solid
+
+  .categories
+    height: 120px
+    .category
+      float: left
+      width: 100px
