@@ -7,6 +7,7 @@ require 'json'
 require 'dotenv'
 require 'sinatra'
 require 'haml'
+require 'sass'
 
 RACK_ENV = ENV['RACK_ENV'] || 'development'
 Dotenv.load! ".env.#{RACK_ENV}"
