@@ -1,0 +1,20 @@
+{
+  "name": "intention-monitor",
+  "version": "0.0.1",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "coffeeify": "~0.5.2",
+    "browserify": "~3.24.1",
+    "bower": "~1.2.8",
+    "uglifyify": "~1.2.0",
+    "exorcist": "~0.1.5"
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "browser": {
+    "react": "./app/shims/react.js",
+    "underscore": "./app/shims/underscore.js"
+  }
+}

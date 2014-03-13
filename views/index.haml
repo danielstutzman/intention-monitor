@@ -1,3 +1,10 @@
+:javascript
+  var IntentionSection = require('./app/IntentionSection.coffee');
+  document.addEventListener('DOMContentLoaded', function() {
+    React.renderComponent(IntentionSection(), document.getElementById('intention'));
+  }, false);
+
+.section#intention
 .section
   .time
     %input(type='text' value='0:15')
