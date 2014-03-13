@@ -8,6 +8,7 @@ def create_with_sh(command, path)
 end
 
 file 'app/concat/vendor.js' => %w[
+  bower_components/underscore/underscore.js
   bower_components/react/react.js
 ] do |task|
   mkdir_p 'app/concat'

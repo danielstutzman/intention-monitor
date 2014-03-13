@@ -1,7 +1,7 @@
 :javascript
   var IntentionSection = require('./app/IntentionSection.coffee');
   document.addEventListener('DOMContentLoaded', function() {
-    React.renderComponent(IntentionSection(), document.getElementById('intention'));
+    (new IntentionSection(document.getElementById('intention'))).run();
   }, false);
 
 #intention
