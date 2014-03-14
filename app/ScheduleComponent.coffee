@@ -42,7 +42,7 @@ ScheduleComponent = React.createClass
       { name, hourStart, hourFinish }
 
     currentHour = (new Date()).getHours() + (new Date()).getMinutes() / 60
-    attemptedStart = Math.ceil(currentHour * 4) / 4
+    attemptedStart = Math.ceil((currentHour + 10/60) * 4) / 4
     _.forEach activities, (activity) ->
       if activity.hourStart == null
         foundTime = false
