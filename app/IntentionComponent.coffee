@@ -24,13 +24,15 @@ IntentionComponent = React.createClass
       m = "0#{m}" if m.length == 1
       "#{h}:#{m}"
 
-    expiredOrNot = (@props.minutesSoFar > @props.minutesEstimate) and 'expired'
+    ifNull = (x, y) ->
+      if x == null then y else x
 
-    div { className: "section #{expiredOrNot}" },
+    div { className: 'section' },
       div { className: 'time' },
         input
           type: 'text'
-          value: @state.minutesSoFarEdit || formatTime(@props.minutesSoFar)
+          value: ifNull(@state.minutesSoFarEdit,
+            formatTime(@props.minutesSoFar))
           onBlur: (e) =>
             @setState minutesSoFarEdit: null
             @props.doCommand 'set_minutes_so_far', e.target.value
@@ -42,8 +44,8 @@ IntentionComponent = React.createClass
         br {}
         input
           type: 'text'
-          value: @state.minutesEstimateEdit ||
-            formatTime(@props.minutesEstimate)
+          value: ifNull(@state.minutesEstimateEdit,
+            formatTime(@props.minutesEstimate))
           onBlur: (e) =>
             @setState minutesEstimateEdit: null
             @props.doCommand 'set_minutes_estimate', e.target.value

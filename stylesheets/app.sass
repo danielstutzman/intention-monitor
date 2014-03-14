@@ -1,5 +1,5 @@
 $input-background-color: #000
-$input-foreground-color: #0d0
+$input-foreground-color: #0f0
 
 body
   margin: 0
@@ -10,13 +10,14 @@ body
 $section-padding: 20px
 // line up with chrome os white bar at the top
 $dt-width: 180px
+.flashing
+  .section
+    background-color: red
+
 .section
   border-bottom: 1px #060 solid
   width: 800px - $section-padding * 2
   padding: $section-padding
-
-  &.expired
-    background-color: red
 
   h1
     margin: 0
