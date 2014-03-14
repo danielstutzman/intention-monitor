@@ -72,6 +72,6 @@ IntentionComponent = React.createClass
           dd {},
             textarea defaultValue: value
 
-      div { className: 'pause-symbol' }, [ div({}), div({}), div({}) ]
+      div { className: 'pause-symbol' }, _.map([1..3], (i) -> div({ key: i }))
 
 module.exports = IntentionComponent
