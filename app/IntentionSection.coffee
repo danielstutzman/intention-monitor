@@ -62,9 +62,10 @@ class IntentionSection
             flashingStatus = LATE
             flashingInterval = window.setInterval toggleRedBackground, 1000
     everyMinute = ->
-      props.minutesSoFar += 1
-      updateFlashingStatus()
-      render()
+      if !props.isPaused
+        props.minutesSoFar += 1
+        updateFlashingStatus()
+        render()
     window.setInterval everyMinute, 60 * 1000
     render()
 
