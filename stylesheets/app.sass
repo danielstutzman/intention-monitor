@@ -72,6 +72,29 @@ $dt-width: 180px
     color: black
     border: 0
 
+  &#schedule
+    .hour
+      float: left
+      display: inline-block
+      width: 47px
+      color: #060
+    textarea
+      width: 800px - $section-padding * 2
+      height: 30px
+      background-color: $input-background-color
+      color: $input-foreground-color
+      border: 0
+      font-size: 20pt
+      font-family: sans-serif
+      // remove ugly gray right box in chrome os
+      overflow: hidden
+    .duration
+      position: absolute
+      background-color: green
+      height: 20px
+      top: 10px
+      color: black
+
 .pause-symbol
   display: none
 .section.paused

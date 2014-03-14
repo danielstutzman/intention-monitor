@@ -1,7 +1,10 @@
 :javascript
   var IntentionSection = require('./app/IntentionSection.coffee');
+  var  ScheduleSection = require('./app/ScheduleSection.coffee');
   document.addEventListener('DOMContentLoaded', function() {
     (new IntentionSection(document.getElementById('intention'))).run();
+    (new  ScheduleSection(document.getElementById('schedule' ))).run();
   }, false);
 
 #intention
+#schedule
