@@ -23,15 +23,19 @@ ScheduleComponent = React.createClass
 
     activities = _.map @props.activitiesText.split(/, ?/), (text) ->
       parts = text.split(' ')
-      if parts[0].indexOf('-') != -1
+      if parts[0].indexOf('-') == 0 # e.g. -2 means next available 2 hours
+        name = parts[1...parts.length].join(' ')
+        hourStart  = null
+        hourFinish = -parseFloat(parts[0])
+      else if parts[0].indexOf('-') > 0 # e.g. 8-9 means 8 a.m. - 9 a.m.
+        name = parts[1...parts.length].join(' ')
         hourStart  = parseFloat(parts[0].split('-')[0])
         hourFinish = parseFloat(parts[0].split('-')[1])
-        name = parts[1...parts.length].join(' ')
-      else if parseFloat(parts[0]) > 0
+      else if parseFloat(parts[0]) > 0 # e.g. 11 means 11 a.m. - default
         name = parts[1...parts.length].join(' ')
         hourStart = parseFloat(parts[0])
         hourFinish = hourStart + 0.5
-      else
+      else # e.g. activity without time label
         name = text
         hourStart = null
         hourFinish = null
@@ -44,7 +48,7 @@ ScheduleComponent = React.createClass
         foundTime = false
         while !foundTime
           foundTime = true
-          attemptedFinish = attemptedStart + 0.4
+          attemptedFinish = attemptedStart + (activity.hourFinish || 0.4)
           _.forEach activities, (activity2) ->
             if activity2.hourStart != null
               if activity2.hourStart <= attemptedStart &&
