@@ -27,7 +27,10 @@ IntentionComponent = React.createClass
     ifNull = (x, y) ->
       if x == null then y else x
 
-    div { className: 'section' },
+    maybePaused =
+      if @props.isPaused then 'paused' else ''
+
+    div { className: "section #{maybePaused}" },
       div { className: 'time' },
         input
           type: 'text'
@@ -68,5 +71,7 @@ IntentionComponent = React.createClass
             key.replace(/_/g, ' ')
           dd {},
             textarea defaultValue: value
+
+      div { className: 'pause-symbol' }, [ div({}), div({}), div({}) ]
 
 module.exports = IntentionComponent

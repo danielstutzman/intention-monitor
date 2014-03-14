@@ -1,6 +1,7 @@
 IntentionComponent = require('./app/IntentionComponent.coffee')
 
 [OKAY, LATE, ACKNOWLEDGED] = [1, 2, 3]
+SPACE_KEY_CODE = 32
 
 class IntentionSection
   constructor: (targetDiv) ->
@@ -15,7 +16,7 @@ class IntentionSection
     setRedBackground = (addRed) =>
       classes = (@targetDiv.className || '').split(' ')
       if addRed
-        classes.push('flashing')
+        classes.push('flashing') unless classes.indexOf('flashing') != -1
       else
         classes = _.without(classes, 'flashing')
       @targetDiv.className = classes.join(' ')
@@ -34,6 +35,7 @@ class IntentionSection
         done:       ''
       minutesSoFar: 0
       minutesEstimate: 15
+      isPaused: false
       doCommand: (command, args) ->
         switch command
           when 'set_minutes_so_far'
@@ -48,14 +50,17 @@ class IntentionSection
     render = =>
       React.renderComponent(IntentionComponent(props), @targetDiv)
     updateFlashingStatus = ->
-      if props.minutesSoFar <= props.minutesEstimate
-        if flashingStatus != OKAY
-          flashingStatus = OKAY
-          setRedBackground false
+      if props.isPaused
+        setRedBackground false
       else
-        if flashingStatus != LATE
-          flashingStatus = LATE
-          flashingInterval = window.setInterval toggleRedBackground, 1000
+        if props.minutesSoFar <= props.minutesEstimate
+          if flashingStatus != OKAY
+            flashingStatus = OKAY
+            setRedBackground false
+        else
+          if flashingStatus != LATE
+            flashingStatus = LATE
+            flashingInterval = window.setInterval toggleRedBackground, 1000
     everyMinute = ->
       props.minutesSoFar += 1
       updateFlashingStatus()
@@ -64,8 +69,14 @@ class IntentionSection
     render()
 
     window.addEventListener 'keydown', (e) =>
+      # stop flashing
       if flashingStatus == LATE
         window.clearInterval flashingInterval
         setRedBackground true
+
+      if e.keyCode == SPACE_KEY_CODE
+        props.isPaused = !props.isPaused
+        updateFlashingStatus()
+        render()
 
 module.exports = IntentionSection
