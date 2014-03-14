@@ -5,7 +5,7 @@ class ScheduleSection
     @targetDiv = targetDiv
   run: =>
     props =
-      activitiesText: 'here'
+      activitiesText: '-.5 breakfast, -.5 lunch, -1 exercise, -.5 dinner, -.5 vclean, -.5 pclean'
       doCommand: (command, args) ->
         if command == 'change_activities'
           props.activitiesText = args
