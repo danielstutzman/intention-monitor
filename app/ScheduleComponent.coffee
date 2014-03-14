@@ -75,7 +75,7 @@ ScheduleComponent = React.createClass
           style:
             left: left_for_hour(activity.hourStart)
             width: left_for_hour(activity.hourFinish) -
-              left_for_hour(activity.hourStart)
+              left_for_hour(activity.hourStart) - 2
           activity.name
       br {}
       textarea
