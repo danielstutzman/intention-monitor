@@ -1,32 +1,21 @@
 IntentionComponent = require('./app/IntentionComponent.coffee')
 
 [OKAY, LATE, ACKNOWLEDGED] = [1, 2, 3]
-SPACE_KEY_CODE = 32
 
 class IntentionSection
+
   constructor: (targetDiv) ->
     @targetDiv = targetDiv
-  run: =>
+    @flashingInterval = null
+    @flashingStatus = OKAY
+
     parseTime = (text) ->
       if text.split(':').length > 1
         [h, m] = text.split(':')
         parseInt(h) * 60 + parseInt(m)
       else
         parseInt(text)
-    setRedBackground = (addRed) =>
-      classes = (@targetDiv.className || '').split(' ')
-      if addRed
-        classes.push('flashing') unless classes.indexOf('flashing') != -1
-      else
-        classes = _.without(classes, 'flashing')
-      @targetDiv.className = classes.join(' ')
-    toggleRedBackground = =>
-      classes = (@targetDiv.className || '').split(' ')
-      isFlashing = classes.indexOf('flashing') != -1
-      setRedBackground !isFlashing
-    flashingInterval = null
-    flashingStatus = OKAY
-    props =
+    @props =
       hash:
         now_i_will: ''
         goal:       ''
@@ -36,57 +25,67 @@ class IntentionSection
       minutesSoFar: 0
       minutesEstimate: 15
       isPaused: false
-      doCommand: (command, args) ->
+      doCommand: (command, args) =>
         switch command
           when 'set_minutes_so_far'
-            props.minutesSoFar = parseTime(args)
-            updateFlashingStatus()
-            render()
+            @props.minutesSoFar = parseTime(args)
+            @_updateFlashingStatus()
+            @_render()
           when 'set_minutes_estimate'
-            props.minutesEstimate = parseTime(args)
-            updateFlashingStatus()
-            render()
+            @props.minutesEstimate = parseTime(args)
+            @_updateFlashingStatus()
+            @_render()
 
-    render = =>
-      React.renderComponent(IntentionComponent(props), @targetDiv)
-    updateFlashingStatus = ->
-      if props.isPaused
-        setRedBackground false
+  _render: =>
+    React.renderComponent(IntentionComponent(@props), @targetDiv)
+
+  _setRedBackground: (addRed) =>
+    classes = (@targetDiv.className || '').split(' ')
+    if addRed
+      classes.push('flashing') unless classes.indexOf('flashing') != -1
+    else
+      classes = _.without(classes, 'flashing')
+    @targetDiv.className = classes.join(' ')
+
+  _updateFlashingStatus: =>
+    toggleRedBackground = =>
+      classes = (@targetDiv.className || '').split(' ')
+      isFlashing = classes.indexOf('flashing') != -1
+      @_setRedBackground !isFlashing
+    if @props.isPaused
+      @_setRedBackground false
+    else
+      if @props.minutesSoFar <= @props.minutesEstimate
+        if @flashingStatus != OKAY
+          @flashingStatus = OKAY
+          @_setRedBackground false
       else
-        if props.minutesSoFar <= props.minutesEstimate
-          if flashingStatus != OKAY
-            flashingStatus = OKAY
-            setRedBackground false
-        else
-          if flashingStatus != LATE
-            flashingStatus = LATE
-            flashingInterval = window.setInterval toggleRedBackground, 1000
-    everyMinute = ->
-      if !props.isPaused
-        props.minutesSoFar += 1
-        updateFlashingStatus()
-        render()
+        if @flashingStatus != LATE
+          @flashingStatus = LATE
+          @flashingInterval = window.setInterval toggleRedBackground, 1000
+
+  run: =>
+    everyMinute = =>
+      if !@props.isPaused
+        @props.minutesSoFar += 1
+        @_updateFlashingStatus()
+        @_render()
     window.setInterval everyMinute, 60 * 1000
-    render()
+    @_render()
 
     window.addEventListener 'keydown', (e) =>
       # stop flashing
-      if flashingStatus == LATE
-        window.clearInterval flashingInterval
-        setRedBackground true
-        flashingStatus = ACKNOWLEDGED
+      if @flashingStatus == LATE
+        window.clearInterval @flashingInterval
+        @_setRedBackground true
+        @flashingStatus = ACKNOWLEDGED
 
-    document.getElementById('keyCapture').addEventListener 'keydown', (e) =>
-      if e.keyCode == SPACE_KEY_CODE
-        props.isPaused = !props.isPaused
-        updateFlashingStatus()
-        render()
+  focus: =>
+    @targetDiv.querySelector('.js-minutes-so-far').focus()
 
-    aWhileSinceKeyTimeout = null
-    aWhileSinceKey = ->
-      document.getElementById('keyCapture').focus()
-    window.addEventListener 'keydown', (e) =>
-      window.clearTimeout aWhileSinceKeyTimeout
-      aWhileSinceKeyTimeout = window.setTimeout aWhileSinceKey, 3000
+  togglePause: =>
+    @props.isPaused = !@props.isPaused
+    @_updateFlashingStatus()
+    @_render()
 
 module.exports = IntentionSection

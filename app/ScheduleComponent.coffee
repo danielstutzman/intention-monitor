@@ -64,6 +64,7 @@ ScheduleComponent = React.createClass
 
 
     div { id: 'schedule', className: 'section', style: { position: 'relative' } },
+      div { className: 'key-label' }, 's'
       br {}
       _.map [7..22], (hour) ->
         div { className: 'hour', key: hour },
@@ -83,6 +84,7 @@ ScheduleComponent = React.createClass
           left: left_for_hour(@props.currentHour)
       br {}
       textarea
+        className: 'js-activities-text'
         value: @props.activitiesText
         onChange: (e) =>
           @props.doCommand 'change_activities', e.target.value

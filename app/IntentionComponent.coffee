@@ -31,8 +31,10 @@ IntentionComponent = React.createClass
       if @props.isPaused then 'paused' else ''
 
     div { className: "section #{maybePaused}" },
+      div { className: 'key-label' }, 'i'
       div { className: 'time' },
         input
+          className: 'js-minutes-so-far'
           type: 'text'
           value: ifNull(@state.minutesSoFarEdit,
             formatTime(@props.minutesSoFar))

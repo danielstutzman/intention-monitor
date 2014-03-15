@@ -7,6 +7,10 @@ body
   background: black
   color: #0f0
 
+#keyCapture
+  position: absolute
+  top: -20px
+
 $section-padding: 20px
 // line up with chrome os white bar at the top
 $dt-width: 180px
@@ -18,9 +22,15 @@ $dt-width: 180px
   border-bottom: 1px #060 solid
   width: 800px - $section-padding * 2
   padding: $section-padding
+  position: relative
 
-  h1
-    margin: 0
+  .key-label
+    position: absolute
+    top: 0
+    left: 0
+    font-size: 20pt
+    border: 1px #040 solid
+    padding: 5px
 
   $time-width: 100px - 1px - 1px
   .time

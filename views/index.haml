@@ -1,9 +1,51 @@
 :javascript
+  var ESC_KEY_CODE   = 27;
+  var I_KEY_CODE     = 73;
+  var S_KEY_CODE     = 83;
+  var SPACE_KEY_CODE = 32;
+
   var IntentionSection = require('./app/IntentionSection.coffee');
   var  ScheduleSection = require('./app/ScheduleSection.coffee');
   document.addEventListener('DOMContentLoaded', function() {
-    (new IntentionSection(document.getElementById('intention'))).run();
-    (new  ScheduleSection(document.getElementById('schedule' ))).run();
+    var intentionSection =
+      new IntentionSection(document.getElementById('intention'));
+    var scheduleSection =
+      new ScheduleSection(document.getElementById('schedule'));
+
+    document.getElementById('keyCapture').addEventListener(
+        'keydown', function(e) {
+      if (e.keyCode == I_KEY_CODE) {
+        intentionSection.focus();
+        e.preventDefault();
+      } else if (e.keyCode == S_KEY_CODE) {
+        scheduleSection.focus();
+        e.preventDefault();
+      } else if (e.keyCode == SPACE_KEY_CODE) {
+        intentionSection.togglePause();
+        e.preventDefault();
+      }
+    });
+
+    var aWhileSinceInputTimeout = null;
+    var aWhileSinceInput = function() {
+      document.getElementById('keyCapture').focus();
+    };
+    window.addEventListener('keydown', function(e) {
+      window.clearTimeout(aWhileSinceInputTimeout);
+      aWhileSinceInputTimeout = window.setTimeout(aWhileSinceInput, 3000);
+
+      if (e.keyCode == ESC_KEY_CODE) {
+        document.getElementById('keyCapture').focus();
+        e.preventDefault();
+      }
+    });
+    window.addEventListener('click', function(e) {
+      window.clearTimeout(aWhileSinceInputTimeout);
+      aWhileSinceInputTimeout = window.setTimeout(aWhileSinceInput, 3000);
+    });
+
+    intentionSection.run();
+    scheduleSection.run();
     document.getElementById('keyCapture').focus();
   }, false);
 
