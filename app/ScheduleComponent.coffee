@@ -7,7 +7,8 @@ ScheduleComponent = React.createClass
 
   propTypes:
     activitiesText: type.string.isRequired
-    doCommand:     type.func.isRequired
+    doCommand:      type.func.isRequired
+    currentHour:    type.number.isRequired
 
   getInitialState: ->
     textEdit: null
@@ -41,8 +42,7 @@ ScheduleComponent = React.createClass
         hourFinish = null
       { name, hourStart, hourFinish }
 
-    currentHour = (new Date()).getHours() + (new Date()).getMinutes() / 60
-    attemptedStart = Math.ceil((currentHour + 10/60) * 4) / 4
+    attemptedStart = Math.ceil((@props.currentHour + 10/60) * 4) / 4
     _.forEach activities, (activity) ->
       if activity.hourStart == null
         foundTime = false
@@ -80,7 +80,7 @@ ScheduleComponent = React.createClass
       div
         className: 'current-time'
         style:
-          left: left_for_hour(currentHour)
+          left: left_for_hour(@props.currentHour)
       br {}
       textarea
         value: @props.activitiesText
