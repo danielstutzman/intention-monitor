@@ -57,12 +57,6 @@ IntentionComponent = React.createClass
         br {}
         label {},
           'ESTIMATE'
-        br {}
-        br {}
-        button {},
-          'Pause'
-        button {},
-          'Eject'
 
       _.map _.pairs(@props.hash), (key_value) ->
         [ key, value ] = key_value
