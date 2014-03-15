@@ -74,6 +74,7 @@ class IntentionSection
       if flashingStatus == LATE
         window.clearInterval flashingInterval
         setRedBackground true
+        flashingStatus = ACKNOWLEDGED
 
       if e.keyCode == SPACE_KEY_CODE
         props.isPaused = !props.isPaused
