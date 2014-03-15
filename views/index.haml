@@ -4,7 +4,9 @@
   document.addEventListener('DOMContentLoaded', function() {
     (new IntentionSection(document.getElementById('intention'))).run();
     (new  ScheduleSection(document.getElementById('schedule' ))).run();
+    document.getElementById('keyCapture').focus();
   }, false);
 
 #intention
 #schedule
+%input#keyCapture(type='text' style='background-color:black; border:0;')

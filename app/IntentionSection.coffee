@@ -76,9 +76,17 @@ class IntentionSection
         setRedBackground true
         flashingStatus = ACKNOWLEDGED
 
+    document.getElementById('keyCapture').addEventListener 'keydown', (e) =>
       if e.keyCode == SPACE_KEY_CODE
         props.isPaused = !props.isPaused
         updateFlashingStatus()
         render()
+
+    aWhileSinceKeyTimeout = null
+    aWhileSinceKey = ->
+      document.getElementById('keyCapture').focus()
+    window.addEventListener 'keydown', (e) =>
+      window.clearTimeout aWhileSinceKeyTimeout
+      aWhileSinceKeyTimeout = window.setTimeout aWhileSinceKey, 3000
 
 module.exports = IntentionSection
