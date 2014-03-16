@@ -8,10 +8,17 @@
   }
 
   document.addEventListener('DOMContentLoaded', function() {
-    var button = document.getElementById('sleep');
-    button.addEventListener('click', function() {
+    document.getElementById('sleep').addEventListener('click', function() {
       setSleep(true);
-      window.setTimeout(function() { setSleep(false); }, 5000);
     });
+
+    var everyMinute = function() {
+      var now = new Date();
+      if (now.getHours() == 6 && now.getMinutes() == 0) {
+        setSleep(false);
+      }
+    };
+    window.setInterval(everyMinute, 30 * 1000);
   });
+
 %button#sleep Turn off screen
