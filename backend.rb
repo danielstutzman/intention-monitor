@@ -36,9 +36,9 @@ module IntentionMonitor
       # gotta set root or it'll be set wrong during automated tests
       set root: File.dirname(__FILE__)
       #set :public_folder, Proc.new { File.join(root, ENV['PUBLIC_DIR']) }
+      set server: 'thin', connections: []
     end
 
-    use Rack::Deflater
     use Rack::Logger
 
     def initialize(*args)
@@ -60,6 +60,18 @@ module IntentionMonitor
 
     post '/sleep/off' do
       @beanstalk.tubes['sleep'].put JSON.generate(sleep: false)
+    end
+
+    get '/stream', provides: 'text/event-stream' do
+      stream :keep_open do |out|
+        settings.connections << out
+        out.callback { settings.connections.delete(out) }
+      end
+    end
+
+    post '/alert' do
+      settings.connections.each { |out| out << "data: alert\n\n" }
+      'ok'
     end
   end
 end

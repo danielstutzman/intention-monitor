@@ -19,6 +19,37 @@
       }
     };
     window.setInterval(everyMinute, 30 * 1000);
+
+    var stream = new EventSource('/stream');
+    stream.onmessage = function(e) {
+      if (e.data === 'alert') {
+        var toggleBackground = function() {
+          if (document.body.style.backgroundColor != 'red') {
+            document.body.style.backgroundColor = 'red';
+          } else {
+            document.body.style.backgroundColor = null;
+          }
+        }
+        var togglingBackground = window.setInterval(toggleBackground, 1000);
+        var listener1 = window.addEventListener('keydown', function(e) {
+          document.body.style.backgroundColor = null;
+          window.clearInterval(togglingBackground);
+          window.removeEventListener('keydown', listener1);
+        });
+        var listener2 = window.addEventListener('mousemove', function(e) {
+          document.body.style.backgroundColor = null;
+          window.clearInterval(togglingBackground);
+          window.removeEventListener('mousemove', listener2);
+        });
+      }
+    };
+    document.getElementById('alert').addEventListener('click', function() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/alert', true);
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      xhr.send(null); // no data
+    });
   });
 
 %button#sleep Turn off screen
+%button#alert Alert
