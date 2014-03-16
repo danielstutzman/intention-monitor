@@ -1,6 +1,7 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    beaneater (0.3.0)
     dotenv (0.9.0)
     haml (4.0.5)
       tilt
@@ -18,6 +19,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  beaneater
   dotenv
   haml
   sass

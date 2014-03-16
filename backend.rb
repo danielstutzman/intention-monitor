@@ -8,6 +8,7 @@ require 'dotenv'
 require 'sinatra'
 require 'haml'
 require 'sass'
+require 'beaneater'
 
 RACK_ENV = ENV['RACK_ENV'] || 'development'
 Dotenv.load! ".env.#{RACK_ENV}"
@@ -40,8 +41,25 @@ module IntentionMonitor
     use Rack::Deflater
     use Rack::Logger
 
+    def initialize(*args)
+      super(*args)
+      @beanstalk = Beaneater::Pool.new(['localhost:11300'])
+    end
+
     get '/' do
       haml :index
+    end
+
+    get '/blank' do
+      haml :blank
+    end
+
+    post '/sleep/on' do
+      @beanstalk.tubes['sleep'].put JSON.generate(sleep: true)
+    end
+
+    post '/sleep/off' do
+      @beanstalk.tubes['sleep'].put JSON.generate(sleep: false)
     end
   end
 end

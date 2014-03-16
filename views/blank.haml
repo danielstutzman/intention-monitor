@@ -1,0 +1,17 @@
+:javascript
+  function setSleep(newSleep) {
+    var url = (newSleep) ? '/sleep/on' : '/sleep/off';
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.send(null); // no data
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var button = document.getElementById('sleep');
+    button.addEventListener('click', function() {
+      setSleep(true);
+      window.setTimeout(function() { setSleep(false); }, 5000);
+    });
+  });
+%button#sleep Turn off screen
