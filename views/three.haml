@@ -1,0 +1,86 @@
+%textarea#today(style='width:800px; height:500px; background-color: black; color: green; font-size: 30pt; border: 0')
+%div#now-div(style='display:none')
+  %input#minutes-so-far(style='background-color: black; color: gray; border: 0' placeholder='minutes so far')
+  %input#minutes-estimate(style='background-color: black; color: gray; border: 0' placeholder='estimated minutes')
+  %textarea#now(style='width:800px; height:500px; background-color: black; color:gray; font-size: 30pt; border: 0')
+
+:javascript
+  function setSleep(newSleep) {
+    var url = (newSleep) ? '/sleep/on' : '/sleep/off';
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.send(null); // no data
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var today    = document.getElementById('today');
+    var now      = document.getElementById('now');
+    var now_div  = document.getElementById('now-div');
+    var so_far   = document.getElementById('minutes-so-far');
+    var estimate = document.getElementById('minutes-estimate');
+
+    window.addEventListener('keydown', function(e) {
+      if (e.keyCode == 112) { // F1
+        setSleep(true);
+      } else if (e.keyCode == 113) { // F2
+        today.style.display   = 'block';
+        now_div.style.display = 'none';
+      } else if (e.keyCode == 114) { // F3
+        today.style.display   = 'none';
+        now_div.style.display = 'block';
+      }
+    });
+
+    today.value = window.localStorage.getItem('today');
+    today.addEventListener('keyup', function(e) {
+      window.localStorage.setItem('today', today.value);
+    });
+
+    now.value = window.localStorage.getItem('now');
+    now.addEventListener('keyup', function(e) {
+      window.localStorage.setItem('now', now.value);
+    });
+
+    var soFarIncrementer = null;
+    so_far.addEventListener('keyup', function(e) {
+      window.clearInterval(soFarIncrementer);
+      var incrementSoFar = function() {
+        if (so_far.value != '') {
+          var nextValue = parseInt(so_far.value) + 1;
+          so_far.value = nextValue
+          if (estimate.value != '' && nextValue > parseInt(estimate.value)) {
+            if (togglingBackground === null) {
+              startFlashing();
+            }
+          }
+        }
+      };
+      soFarIncrementer = window.setInterval(incrementSoFar, 60 * 1000);
+    });
+  });
+
+  var togglingBackground = null;
+  function startFlashing() {
+    var flashBackground = function() {
+      if (document.body.style.backgroundColor == 'blue') {
+        document.body.style.backgroundColor = 'black';
+      } else {
+        document.body.style.backgroundColor = 'blue';
+      }
+    }
+    window.clearInterval(togglingBackground);
+    togglingBackground = window.setInterval(flashBackground, 1000);
+    var listener1 = window.addEventListener('keydown', function(e) {
+      document.body.style.backgroundColor = null;
+      window.clearInterval(togglingBackground);
+      togglingBackground = null;
+      window.removeEventListener('keydown', listener1);
+    });
+    var listener2 = window.addEventListener('mousemove', function(e) {
+      document.body.style.backgroundColor = null;
+      window.clearInterval(togglingBackground);
+      togglingBackground = null;
+      window.removeEventListener('mousemove', listener2);
+    });
+  }

@@ -73,5 +73,9 @@ module IntentionMonitor
       settings.connections.each { |out| out << "data: alert\n\n" }
       'ok'
     end
+
+    get '/three' do
+      haml :three
+    end
   end
 end
