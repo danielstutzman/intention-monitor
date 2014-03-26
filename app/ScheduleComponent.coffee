@@ -7,6 +7,7 @@ ScheduleComponent = React.createClass
 
   propTypes:
     activitiesText: type.string.isRequired
+    notesText:      type.string.isRequired
     doCommand:      type.func.isRequired
     currentHour:    type.number.isRequired
 
@@ -64,7 +65,7 @@ ScheduleComponent = React.createClass
 
 
     div { id: 'schedule', className: 'section', style: { position: 'relative' } },
-      div { className: 'key-label' }, 's'
+      div { className: 'key-label' }, 'F3'
       br {}
       _.map [7..22], (hour) ->
         div { className: 'hour', key: hour },
@@ -88,5 +89,10 @@ ScheduleComponent = React.createClass
         value: @props.activitiesText
         onChange: (e) =>
           @props.doCommand 'change_activities', e.target.value
+      textarea
+        className: 'js-notes-text'
+        value: @props.notesText
+        onChange: (e) =>
+          @props.doCommand 'change_notes', e.target.value
 
 module.exports = ScheduleComponent

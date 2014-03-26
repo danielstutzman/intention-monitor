@@ -12,8 +12,6 @@ body
   top: -20px
 
 $section-padding: 20px
-// line up with chrome os white bar at the top
-$dt-width: 180px
 .flashing
   .section
     background-color: red
@@ -48,34 +46,16 @@ $dt-width: 180px
       font-size: 15pt
       color: #060
 
-  dl
-    margin: 0
-    dt
-      display: block
-      margin-right: 10px
-      width: $dt-width
-      font-weight: bold
-      font-size: 20pt
-      float: left
-      text-align: right
-      text-transform: uppercase
-      clear: left
-      // line up with textarea text
-      padding-top: 2px
-      color: #060
-    dd
-      margin: 0 0 0 $dt-width
-      font-size: 20pt
-      textarea
-        width: 800px - $section-padding * 2 - $dt-width - 10px - 10px - 10px - $time-width
-        height: 30px
-        background-color: $input-background-color
-        color: $input-foreground-color
-        border: 0
-        font-size: 20pt
-        font-family: sans-serif
-        // remove ugly gray right box in chrome os
-        overflow: hidden
+  textarea
+    width: 800px - $section-padding * 2 - 10px - 10px - 10px - $time-width
+    height: 500px
+    background-color: $input-background-color
+    color: $input-foreground-color
+    border: 0
+    font-size: 20pt
+    font-family: sans-serif
+    // remove ugly gray right box in chrome os
+    overflow: hidden
 
   button
     background-color: #060
@@ -90,14 +70,22 @@ $dt-width: 180px
       color: #090
     textarea
       width: 800px - $section-padding * 2
-      height: 15px
       background-color: $input-background-color
       color: $input-foreground-color
       border: 0
-      font-size: 12pt
-      font-family: sans-serif
       // remove ugly gray right box in chrome os
       overflow: hidden
+
+      &.js-activities-text
+        height: 15px
+        font-size: 12pt
+        font-family: sans-serif
+
+      &.js-notes-text
+        height: 300px
+        font-size: 30pt
+        font-family: monospace
+
     .duration
       position: absolute
       background-color: green
@@ -117,7 +105,7 @@ $dt-width: 180px
   display: none
 .section.paused
   background-color: #040
-  dl dd textarea
+  textarea
     background-color: #040
   input
     background-color: #040

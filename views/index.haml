@@ -1,8 +1,17 @@
 :javascript
   var ESC_KEY_CODE   = 27;
-  var I_KEY_CODE     = 73;
-  var S_KEY_CODE     = 83;
+  var F1_KEY_CODE    = 112;
+  var F2_KEY_CODE    = 113;
+  var F3_KEY_CODE    = 114;
   var SPACE_KEY_CODE = 32;
+
+  function setSleep(newSleep) {
+    var url = (newSleep) ? '/sleep/on' : '/sleep/off';
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.send(null); // no data
+  }
 
   var IntentionSection = require('./app/IntentionSection.coffee');
   var  ScheduleSection = require('./app/ScheduleSection.coffee');
@@ -12,15 +21,29 @@
     var scheduleSection =
       new ScheduleSection(document.getElementById('schedule'));
 
-    document.getElementById('keyCapture').addEventListener(
-        'keydown', function(e) {
-      if (e.keyCode == I_KEY_CODE) {
+
+    window.addEventListener('keydown', function(e) {
+      if (e.keyCode == F1_KEY_CODE) {
+        setSleep(true);
+        e.preventDefault();
+      } else if (e.keyCode == F2_KEY_CODE) {
+        document.getElementById('intention').style.display = 'block';
+        document.getElementById('schedule').style.display = 'none';
         intentionSection.focus();
         e.preventDefault();
-      } else if (e.keyCode == S_KEY_CODE) {
+      } else if (e.keyCode == F3_KEY_CODE) {
+        document.getElementById('intention').style.display = 'none';
+        document.getElementById('schedule').style.display = 'block';
         scheduleSection.focus();
         e.preventDefault();
-      } else if (e.keyCode == SPACE_KEY_CODE) {
+      }
+    });
+
+    document.getElementById('keyCapture').addEventListener(
+        'keydown', function(e) {
+      if (e.keyCode == SPACE_KEY_CODE) {
+        document.getElementById('intention').style.display = 'block';
+        document.getElementById('schedule').style.display = 'none';
         intentionSection.togglePause();
         e.preventDefault();
       }
@@ -50,5 +73,5 @@
   }, false);
 
 #intention
-#schedule
+#schedule(style='display:none')
 %input#keyCapture(type='text' style='background-color:black; border:0;')

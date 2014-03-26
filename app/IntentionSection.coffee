@@ -16,12 +16,6 @@ class IntentionSection
       else
         parseInt(text)
     @props =
-      hash:
-        now_i_will: ''
-        goal:       ''
-        avoid:      ''
-        difficulty: ''
-        done:       ''
       minutesSoFar: 0
       minutesEstimate: 15
       isPaused: false

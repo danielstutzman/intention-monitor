@@ -6,7 +6,6 @@ IntentionComponent = React.createClass
   displayName: 'IntentionComponent'
 
   propTypes:
-    hash:            type.object.isRequired
     minutesSoFar:    type.number.isRequired
     minutesEstimate: type.number.isRequired
     doCommand:       type.func.isRequired
@@ -31,7 +30,7 @@ IntentionComponent = React.createClass
       if @props.isPaused then 'paused' else ''
 
     div { className: "section #{maybePaused}" },
-      div { className: 'key-label' }, 'i'
+      div { className: 'key-label' }, 'F2'
       div { className: 'time' },
         input
           className: 'js-minutes-so-far'
@@ -60,13 +59,7 @@ IntentionComponent = React.createClass
         label {},
           'ESTIMATE'
 
-      _.map _.pairs(@props.hash), (key_value) ->
-        [ key, value ] = key_value
-        dl { key: key },
-          dt {},
-            key.replace(/_/g, ' ')
-          dd {},
-            textarea defaultValue: value
+      textarea defaultValue: ''
 
       div { className: 'pause-symbol' }, _.map([1..3], (i) -> div({ key: i }))
 
