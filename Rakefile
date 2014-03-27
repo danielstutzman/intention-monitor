@@ -37,3 +37,19 @@ file 'app/concat' => %w[
   app/concat/vendor.js
   app/concat/browserified.js
 ]
+
+file 'public/javascripts/vendor.js' => 'app/concat/vendor.js' do |task|
+  command = "cat #{task.prerequisites.join(' ')}"
+  create_with_sh command, task.name
+end
+
+file 'public/javascripts/browserified.js' =>
+    'app/concat/browserified.js' do |task|
+  command = "cat #{task.prerequisites.join(' ')}"
+  create_with_sh command, task.name
+end
+
+file 'public' => %w[
+  public/javascripts/vendor.js
+  public/javascripts/browserified.js
+]
