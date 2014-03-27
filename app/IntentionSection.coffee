@@ -10,14 +10,16 @@ class IntentionSection
     @flashingStatus = OKAY
 
     parseTime = (text) ->
-      if text.split(':').length > 1
+      if text == ''
+        null
+      else if text.split(':').length > 1
         [h, m] = text.split(':')
         parseInt(h) * 60 + parseInt(m)
       else
         parseInt(text)
     @props =
       minutesSoFar: 0
-      minutesEstimate: 15
+      minutesEstimate: null
       isPaused: false
       doCommand: (command, args) =>
         switch command
@@ -64,7 +66,7 @@ class IntentionSection
         @props.minutesSoFar += 1
         @_updateFlashingStatus()
         @_render()
-    window.setInterval everyMinute, 60 * 1000
+    window.setInterval everyMinute, 60 * 100
     @_render()
 
     window.addEventListener 'keydown', (e) =>

@@ -6,8 +6,8 @@ IntentionComponent = React.createClass
   displayName: 'IntentionComponent'
 
   propTypes:
-    minutesSoFar:    type.number.isRequired
-    minutesEstimate: type.number.isRequired
+    minutesSoFar:    type.number
+    minutesEstimate: type.number
     doCommand:       type.func.isRequired
 
   getInitialState: ->
@@ -18,6 +18,7 @@ IntentionComponent = React.createClass
     { button, br, div, dd, dl, dt, input, label, textarea } = React.DOM
 
     formatTime = (minutes) ->
+      return '' if minutes == null
       h = Math.floor(minutes / 60).toString()
       m = (minutes % 60).toString()
       m = "0#{m}" if m.length == 1
