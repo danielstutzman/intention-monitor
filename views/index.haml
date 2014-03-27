@@ -77,6 +77,8 @@
     stream.onmessage = function(e) {
       if (e.data === 'noticed-browsing') {
         if (!intentionSection.isWithinEstimate()) {
+          setSleep(false); // turn on screen if it's off
+
           var toggleBackground = function() {
             if (document.body.style.backgroundColor != 'red') {
               document.body.style.backgroundColor = 'red';
