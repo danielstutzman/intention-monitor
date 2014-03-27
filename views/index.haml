@@ -4,6 +4,7 @@
   var F2_KEY_CODE    = 113;
   var F3_KEY_CODE    = 114;
   var SPACE_KEY_CODE = 32;
+  var MILLIS_TO_LOSE_FOCUS = 60 * 1000;
 
   function setSleep(newSleep) {
     var url = (newSleep) ? '/sleep/on' : '/sleep/off';
@@ -55,7 +56,8 @@
     };
     window.addEventListener('keydown', function(e) {
       window.clearTimeout(aWhileSinceInputTimeout);
-      aWhileSinceInputTimeout = window.setTimeout(aWhileSinceInput, 3000);
+      aWhileSinceInputTimeout = window.setTimeout(aWhileSinceInput,
+        MILLIS_TO_LOSE_FOCUS);
 
       if (e.keyCode == ESC_KEY_CODE) {
         document.getElementById('keyCapture').focus();
@@ -64,7 +66,8 @@
     });
     window.addEventListener('click', function(e) {
       window.clearTimeout(aWhileSinceInputTimeout);
-      aWhileSinceInputTimeout = window.setTimeout(aWhileSinceInput, 3000);
+      aWhileSinceInputTimeout = window.setTimeout(aWhileSinceInput,
+        MILLIS_TO_LOSE_FOCUS);
     });
 
     intentionSection.run();
