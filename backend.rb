@@ -69,8 +69,14 @@ module IntentionMonitor
       end
     end
 
-    post '/alert' do
-      settings.connections.each { |out| out << "data: alert\n\n" }
+    # for testing
+    get '/noticed-browsing' do
+      settings.connections.each { |out| out << "data: noticed-browsing\n\n" }
+      'ok'
+    end
+
+    post '/noticed-browsing' do
+      settings.connections.each { |out| out << "data: noticed-browsing\n\n" }
       'ok'
     end
 

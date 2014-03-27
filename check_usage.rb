@@ -37,7 +37,7 @@ while true
     end
       
     if !first_time
-      uri = URI.parse('http://localhost:9292/alert')
+      uri = URI.parse('http://localhost:9292/noticed-browsing')
       response = Net::HTTP.post_form uri, {}
     end
     first_time = false

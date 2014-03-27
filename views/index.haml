@@ -22,7 +22,6 @@
     var scheduleSection =
       new ScheduleSection(document.getElementById('schedule'));
 
-
     window.addEventListener('keydown', function(e) {
       if (e.keyCode == F1_KEY_CODE) {
         setSleep(true);
@@ -73,6 +72,32 @@
     intentionSection.run();
     scheduleSection.run();
     document.getElementById('keyCapture').focus();
+
+    var stream = new EventSource('/stream');
+    stream.onmessage = function(e) {
+      if (e.data === 'noticed-browsing') {
+        if (!intentionSection.isWithinEstimate()) {
+          var toggleBackground = function() {
+            if (document.body.style.backgroundColor != 'red') {
+              document.body.style.backgroundColor = 'red';
+            } else {
+              document.body.style.backgroundColor = null;
+            }
+          }
+          var togglingBackground = window.setInterval(toggleBackground, 1000);
+          var listener1 = window.addEventListener('keydown', function(e) {
+            document.body.style.backgroundColor = null;
+            window.clearInterval(togglingBackground);
+            window.removeEventListener('keydown', listener1);
+          });
+          var listener2 = window.addEventListener('mousemove', function(e) {
+            document.body.style.backgroundColor = null;
+            window.clearInterval(togglingBackground);
+            window.removeEventListener('mousemove', listener2);
+          });
+        }
+      }
+    };
   }, false);
 
 #intention

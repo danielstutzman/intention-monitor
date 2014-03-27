@@ -49,6 +49,10 @@ class IntentionSection
       isFlashing = classes.indexOf('flashing') != -1
       @_setRedBackground !isFlashing
     if @props.isPaused
+      @flashingStatus = OKAY
+      @_setRedBackground false
+    else if @props.minutesEstimate == null
+      @flashingStatus = OKAY
       @_setRedBackground false
     else
       if @props.minutesSoFar <= @props.minutesEstimate
@@ -83,5 +87,8 @@ class IntentionSection
     @props.isPaused = !@props.isPaused
     @_updateFlashingStatus()
     @_render()
+
+  isWithinEstimate: =>
+    @flashingStatus == OKAY && @props.minutesEstimate != null
 
 module.exports = IntentionSection
