@@ -70,7 +70,7 @@ class IntentionSection
         @props.minutesSoFar += 1
         @_updateFlashingStatus()
         @_render()
-    window.setInterval everyMinute, 60 * 100
+    window.setInterval everyMinute, 60 * 1000
     @_render()
 
     window.addEventListener 'keydown', (e) =>
