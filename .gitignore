@@ -4,3 +4,4 @@
 /node_modules
 /app/concat
 .DS_Store
+/public/javascripts
