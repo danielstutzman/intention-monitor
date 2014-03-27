@@ -64,7 +64,12 @@ ScheduleComponent = React.createClass
         activity.hourFinish = attemptedFinish
 
 
-    div { id: 'schedule', className: 'section', style: { position: 'relative' } },
+    div
+      id: 'schedule'
+      className: 'section'
+      style:
+        position: 'relative'
+
       div { className: 'key-label' }, 'F3'
       br {}
       _.map [7..22], (hour) ->
