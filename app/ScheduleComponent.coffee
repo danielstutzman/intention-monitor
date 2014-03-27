@@ -7,7 +7,6 @@ ScheduleComponent = React.createClass
 
   propTypes:
     activitiesText: type.string.isRequired
-    notesText:      type.string.isRequired
     doCommand:      type.func.isRequired
     currentHour:    type.number.isRequired
 
