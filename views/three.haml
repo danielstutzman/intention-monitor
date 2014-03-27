@@ -1,8 +1,10 @@
-%textarea#today(style='width:800px; height:500px; background-color: black; color: green; font-size: 30pt; border: 0')
+%style
+  body { padding: 5px }
+%textarea#today(style='width:780px; height:500px; background-color: black; color: green; font-size: 30pt; border: 0; font-family: monospace' spellcheck='false')
 %div#now-div(style='display:none')
-  %input#minutes-so-far(style='background-color: black; color: gray; border: 0' placeholder='minutes so far')
-  %input#minutes-estimate(style='background-color: black; color: gray; border: 0' placeholder='estimated minutes')
-  %textarea#now(style='width:800px; height:500px; background-color: black; color:gray; font-size: 30pt; border: 0')
+  %input#minutes-so-far(style='background-color: black; color: gray; border: 0; font-size: 20pt' placeholder='minutes so far')
+  %input#minutes-estimate(style='background-color: black; color: gray; border: 0; font-size: 20pt' placeholder='estimated minutes')
+  %textarea#now(style='width:800px; height:500px; background-color: black; color:gray; font-size: 60pt; border: 0' spellcheck='false')
 
 :javascript
   function setSleep(newSleep) {
@@ -23,12 +25,15 @@
     window.addEventListener('keydown', function(e) {
       if (e.keyCode == 112) { // F1
         setSleep(true);
+        e.preventDefault();
       } else if (e.keyCode == 113) { // F2
         today.style.display   = 'block';
         now_div.style.display = 'none';
+        e.preventDefault();
       } else if (e.keyCode == 114) { // F3
         today.style.display   = 'none';
         now_div.style.display = 'block';
+        e.preventDefault();
       }
     });
 
