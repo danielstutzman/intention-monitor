@@ -23,9 +23,11 @@ ScheduleComponent = React.createClass
       FIRST_HOUR = 7
       (hour - FIRST_HOUR) * PX_PER_HOUR + ADJUST_RIGHT
 
-    activities = _.map @props.activitiesText.split(/, ?/), (text) ->
+    activities = _.map @props.activitiesText.split(/\n/), (text) ->
       parts = text.split(' ')
-      if parts[0].indexOf('-') == 0 # e.g. -2 means next available 2 hours
+      if text == ''
+        # skip it
+      else if parts[0].indexOf('-') == 0 # e.g. -2 means next available 2 hours
         name = parts[1...parts.length].join(' ')
         hourStart  = null
         hourFinish = -parseFloat(parts[0])
@@ -94,10 +96,5 @@ ScheduleComponent = React.createClass
         value: @props.activitiesText
         onChange: (e) =>
           @props.doCommand 'change_activities', e.target.value
-      textarea
-        className: 'js-notes-text'
-        value: @props.notesText
-        onChange: (e) =>
-          @props.doCommand 'change_notes', e.target.value
 
 module.exports = ScheduleComponent

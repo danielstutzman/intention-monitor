@@ -7,15 +7,11 @@ class ScheduleSection
 
   run: =>
     props =
-      activitiesText: '-.5 breakfast, -.5 lunch, -1 exercise, -.5 dinner, -.5 vclean, -.5 pclean'
-      notesText: ''
+      activitiesText: "10 breakfast\n12 lunch\n16.5 exercise\n18 dinner\n19 vclean\n20 pclean"
       currentHour: null
       doCommand: (command, args) ->
         if command == 'change_activities'
           props.activitiesText = args
-          render()
-        else if command == 'change_notes'
-          props.notesText = args
           render()
     render = =>
       React.renderComponent(ScheduleComponent(props), @targetDiv)
