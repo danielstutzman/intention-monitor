@@ -32,18 +32,16 @@ while true
   new_timestamps = all_timestamps.keys - reported_timestamps.keys
   if new_timestamps.size > 0
     new_timestamps.each do |new_timestamp|
-      puts [new_timestamp, all_timestamps[new_timestamp]].join("\t")
+      STDERR.puts [new_timestamp, all_timestamps[new_timestamp]].join("\t")
       reported_timestamps[new_timestamp] = all_timestamps[new_timestamp]
     end
       
     if !first_time
-      puts "Alerting..."
       uri = URI.parse('http://localhost:9292/alert')
       response = Net::HTTP.post_form uri, {}
     end
     first_time = false
   end
 
-  puts DateTime.now
   sleep 10
 end
