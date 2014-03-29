@@ -12,4 +12,7 @@
       };
     %script(src='/javascripts/vendor.js')
     %script(src='/javascripts/browserified.js')
+    :javascript
+      if (typeof(require) === 'undefined')
+        alert("Couldn't load browserified.js; run rake public");
     = yield
