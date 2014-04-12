@@ -33,7 +33,7 @@ BedtimeComponent = React.createClass
       br {}
       br {}
 
-      'Time:'
+      'Bedtime:'
       input
         type: 'text'
         className: 'js-bedtime-time'
