@@ -82,7 +82,7 @@
       if (e.data === 'noticed-browsing') {
         if (!intentionSection.isWithinEstimate()) {
           setSleep(false); // turn on screen if it's off
-          alertSection.showAlert('if browsing, stand or schedule; store after');
+          alertSection.addAlert('if browsing, stand or schedule; store after');
         }
       }
     };

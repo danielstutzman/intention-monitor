@@ -35,9 +35,9 @@ class IntentionSection
   _updateFlashingStatus: =>
     if @props.minutesEstimate == null ||
        @props.minutesSoFar <= @props.minutesEstimate
-      @alertSection.stopFlashingAndHideAlert()
+      @alertSection.removeAlert 'over planned time limit'
     else
-      @alertSection.showAlert('over planned time limit')
+      @alertSection.addAlert 'over planned time limit'
 
   run: =>
     everyMinute = =>

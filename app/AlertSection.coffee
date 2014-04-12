@@ -1,33 +1,42 @@
+_ = require('underscore')
+
 class AlertSection
 
   constructor: (targetDiv) ->
     @targetDiv = targetDiv
     @flashingInterval = null
-    @currentMessage = ''
     @isFlashing = false
     @listener1 = null
     @listener2 = null
+    @currentAlerts = []
 
-  showAlert: (message) =>
-    @_stateTransition message, true
+  addAlert: (message) =>
+    newCurrentAlerts = _.union(@currentAlerts, message)
+    @_stateTransition newCurrentAlerts
 
-  stopFlashingAndKeepAlert: =>
-    @_stateTransition @currentMessage, false
+  removeAlert: (message) =>
+    newCurrentAlerts = _.without(@currentAlerts, message)
+    @_stateTransition newCurrentAlerts
 
-  stopFlashingAndHideAlert: =>
-    @_stateTransition '', false
+  removeAllAlerts: =>
+    @_stateTransition []
 
-  _setMessageIsShowing: (isMessageShowing) =>
+  _setMessageIsHighlighted: (isMessageShowing) =>
     classes = (@targetDiv.className || '').split(' ')
     if isMessageShowing
-      classes.push('flashing') unless classes.indexOf('flashing') != -1
+      classes.push('highlighted') unless classes.indexOf('highlighted') != -1
     else
-      classes = _.without(classes, 'flashing')
+      classes = _.without(classes, 'highlighted')
     @targetDiv.className = classes.join(' ')
 
-  _stateTransition: (newCurrentMessage, newIsFlashing) =>
-    @currentMessage = newCurrentMessage
-    @targetDiv.innerHTML = @currentMessage
+  _stateTransition: (newCurrentAlerts) =>
+    if newCurrentAlerts.length > 0
+      newIsFlashing = true
+      @targetDiv.innerHTML = newCurrentAlerts[0]
+    else
+      newIsFlashing = false
+      @targetDiv.innerHTML = ''
+    @currentAlerts = newCurrentAlerts
 
     if @isFlashing
       if newIsFlashing
@@ -35,7 +44,7 @@ class AlertSection
       else
         # stop flashing
         window.clearInterval @flashingInterval
-        @_setMessageIsShowing true
+        @_setMessageIsHighlighted true
         window.removeEventListener 'keydown', @listener1
         window.removeEventListener 'mousemove', @listener2
         @isFlashing = false
@@ -44,18 +53,22 @@ class AlertSection
         # start flashing
         toggleRedBackground = =>
           classes = (@targetDiv.className || '').split(' ')
-          isShowing = classes.indexOf('flashing') != -1
-          @_setMessageIsShowing !isShowing
+          isHighlighted = classes.indexOf('highlighted') != -1
+          @_setMessageIsHighlighted !isHighlighted
         @flashingInterval = window.setInterval toggleRedBackground, 1000
         @listener1 = window.addEventListener 'keydown', (e) =>
-          @stopFlashingAndHideAlert()
+          window.removeEventListener 'keydown', @listener1
+          window.removeEventListener 'mousemove', @listener2
+          @removeAllAlerts()
         @listener2 = window.addEventListener 'mousemove', (e) =>
-          @stopFlashingAndHideAlert()
+          window.removeEventListener 'keydown', @listener1
+          window.removeEventListener 'mousemove', @listener2
+          @removeAllAlerts()
         @isFlashing = true
       else
         # stay not flashing
 
   run: =>
-    @_stateTransition '', false
+    @_stateTransition []
 
 module.exports = AlertSection
