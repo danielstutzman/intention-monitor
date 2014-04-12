@@ -7,7 +7,7 @@ class ScheduleSection
 
   run: =>
     props =
-      activitiesText: "10 breakfast\n12 lunch\n16.5 exercise\n18 dinner\n19 vclean\n20 pclean"
+      activitiesText: ''
       currentHour: null
       doCommand: (command, args) ->
         if command == 'change_activities'
