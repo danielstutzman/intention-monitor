@@ -4,8 +4,11 @@
   var F2_KEY_CODE    = 113;
   var F3_KEY_CODE    = 114;
   var F4_KEY_CODE    = 115;
+  var F5_KEY_CODE    = 116;
   var SPACE_KEY_CODE = 32;
   var MILLIS_TO_LOSE_FOCUS = 60 * 1000;
+
+  var _ = require('underscore');
 
   function setSleep(newSleep) {
     var url = (newSleep) ? '/sleep/on' : '/sleep/off';
@@ -19,6 +22,7 @@
   var  ScheduleSection = require('./app/ScheduleSection.coffee');
   var     AlertSection = require('./app/AlertSection.coffee');
   var   BedtimeSection = require('./app/BedtimeSection.coffee');
+  var   MorningSection = require('./app/MorningSection.coffee');
   document.addEventListener('DOMContentLoaded', function() {
     var alertSection =
       new AlertSection(document.getElementById('alert'));
@@ -28,28 +32,36 @@
       new ScheduleSection(document.getElementById('schedule'));
     var bedtimeSection =
       new BedtimeSection(document.getElementById('bedtime'));
+    var morningSection =
+      new MorningSection(document.getElementById('morning'));
+
+    var showSection = function(name) {
+      _.forEach(['morning', 'intention', 'schedule', 'bedtime'],
+          function(name2) {
+        document.getElementById(name2).style.display = 'none';
+      });
+      document.getElementById(name).style.display = 'block';
+    };
 
     window.addEventListener('keydown', function(e) {
       if (e.keyCode == F1_KEY_CODE) {
-        setSleep(true);
+        showSection('morning');
+        morningSection.focus();
         e.preventDefault();
       } else if (e.keyCode == F2_KEY_CODE) {
-        document.getElementById('intention').style.display = 'block';
-        document.getElementById('schedule').style.display = 'none';
-        document.getElementById('bedtime').style.display = 'none';
+        showSection('intention');
         intentionSection.focus();
         e.preventDefault();
       } else if (e.keyCode == F3_KEY_CODE) {
-        document.getElementById('intention').style.display = 'none';
-        document.getElementById('schedule').style.display = 'block';
-        document.getElementById('bedtime').style.display = 'none';
+        showSection('schedule');
         scheduleSection.focus();
         e.preventDefault();
       } else if (e.keyCode == F4_KEY_CODE) {
-        document.getElementById('intention').style.display = 'none';
-        document.getElementById('schedule').style.display = 'none';
-        document.getElementById('bedtime').style.display = 'block';
+        showSection('bedtime');
         bedtimeSection.focus();
+        e.preventDefault();
+      } else if (e.keyCode == F5_KEY_CODE) {
+        setSleep(true);
         e.preventDefault();
       }
     });
@@ -57,8 +69,7 @@
     document.getElementById('keyCapture').addEventListener(
         'keydown', function(e) {
       if (e.keyCode == SPACE_KEY_CODE) {
-        document.getElementById('intention').style.display = 'block';
-        document.getElementById('schedule').style.display = 'none';
+        showSection('intention');
         intentionSection.togglePause();
         e.preventDefault();
       }
@@ -87,9 +98,7 @@
 
     var checkIfPastBedtime = function() {
       if (aWhileSinceInputTimeout == null && bedtimeSection.isPastBedtime()) {
-        document.getElementById('intention').style.display = 'none';
-        document.getElementById('schedule').style.display = 'none';
-        document.getElementById('bedtime').style.display = 'block';
+        showSection('bedtime');
         bedtimeSection.focus();
       }
     };
@@ -99,6 +108,7 @@
     scheduleSection.run();
     alertSection.run();
     bedtimeSection.run();
+    morningSection.run();
     document.getElementById('keyCapture').focus();
 
     var stream = new EventSource('/stream');
@@ -112,7 +122,8 @@
     };
   }, false);
 
-#intention
+#morning
+#intention(style='display:none')
 #schedule(style='display:none')
 #bedtime(style='display:none')
 #alert
