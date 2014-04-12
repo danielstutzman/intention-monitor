@@ -26,6 +26,7 @@ MorningComponent = React.createClass
         value: @props.plan
         onChange: (e) =>
           @props.doCommand 'change_plan', e.target.value
+        spellCheck: false
 
       if @props.planHighlightedLineNum > 0
         div
