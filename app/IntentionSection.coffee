@@ -33,7 +33,8 @@ class IntentionSection
     React.renderComponent(IntentionComponent(@props), @targetDiv)
 
   _updateFlashingStatus: =>
-    if @isWithinEstimate()
+    if @props.minutesEstimate == null ||
+       @props.minutesSoFar <= @props.minutesEstimate
       @alertSection.stopFlashingAndHideAlert()
     else
       @alertSection.showAlert('over planned time limit')
@@ -50,7 +51,7 @@ class IntentionSection
     @targetDiv.querySelector('.js-minutes-so-far').focus()
 
   isWithinEstimate: =>
-    @props.minutesEstimate == null ||
+    @props.minutesEstimate != null &&
       @props.minutesSoFar <= @props.minutesEstimate
 
 module.exports = IntentionSection
