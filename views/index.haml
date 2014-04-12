@@ -37,13 +37,16 @@
     var morningSection =
       new MorningSection(document.getElementById('morning'));
 
-    var showSection = function(name) {
+    var showSection = function(newCurrentSection) {
+      currentSection = newCurrentSection;
       _.forEach(['morning', 'intention', 'schedule', 'bedtime'],
           function(name2) {
         document.getElementById(name2).style.display = 'none';
       });
-      document.getElementById(name).style.display = 'block';
+      document.getElementById(currentSection).style.display = 'block';
     };
+    var currentSection = 'morning';
+    showSection(currentSection);
 
     window.addEventListener('keydown', function(e) {
       if (e.keyCode == F1_KEY_CODE) {
@@ -70,14 +73,16 @@
 
     document.getElementById('keyCapture').addEventListener(
         'keydown', function(e) {
-      if (e.keyCode == UP_KEY_CODE) {
-        showSection('morning');
-        morningSection.changePlanHighlightedLineNum(-1);
-        e.preventDefault();
-      } else if (e.keyCode == DOWN_KEY_CODE) {
-        showSection('morning');
-        morningSection.changePlanHighlightedLineNum(1);
-        e.preventDefault();
+      if (currentSection == 'morning') {
+        if (e.keyCode == UP_KEY_CODE) {
+          showSection('morning');
+          morningSection.changePlanHighlightedLineNum(-1);
+          e.preventDefault();
+        } else if (e.keyCode == DOWN_KEY_CODE) {
+          showSection('morning');
+          morningSection.changePlanHighlightedLineNum(1);
+          e.preventDefault();
+        }
       }
     });
 
@@ -102,13 +107,16 @@
         MILLIS_TO_LOSE_FOCUS);
     });
 
-    var checkIfPastBedtime = function() {
-      if (aWhileSinceInputTimeout == null && bedtimeSection.isPastBedtime()) {
-        showSection('bedtime');
-        bedtimeSection.focus();
+    var checkIfReminderNeeded = function() {
+      if (aWhileSinceInputTimeout == null) {
+        if (bedtimeSection.isPastBedtime() && currentSection != 'bedtime') {
+          showSection('bedtime');
+        } else if (morningSection.hasHighlightedLineNum()) {
+          showSection('morning');
+        }
       }
     };
-    window.setInterval(checkIfPastBedtime, 60 * 1000);
+    window.setInterval(checkIfReminderNeeded, 60 * 60 * 1000);
 
     intentionSection.run();
     scheduleSection.run();
@@ -129,8 +137,8 @@
   }, false);
 
 #morning
-#intention(style='display:none')
-#schedule(style='display:none')
-#bedtime(style='display:none')
+#intention
+#schedule
+#bedtime
 #alert
 %input#keyCapture(type='text' style='background-color:black; border:0;')
