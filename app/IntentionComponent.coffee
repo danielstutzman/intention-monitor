@@ -17,7 +17,7 @@ IntentionComponent = React.createClass
   render: ->
     { button, br, div, dd, dl, dt, input, label, textarea } = React.DOM
 
-    formatTime = (minutes) ->
+    formatDuration = (minutes) ->
       return '' if minutes == null
       h = Math.floor(minutes / 60).toString()
       m = (minutes % 60).toString()
@@ -37,7 +37,7 @@ IntentionComponent = React.createClass
           className: 'js-minutes-so-far'
           type: 'text'
           value: ifNull(@state.minutesSoFarEdit,
-            formatTime(@props.minutesSoFar))
+            formatDuration(@props.minutesSoFar))
           onBlur: (e) =>
             @setState minutesSoFarEdit: null
             @props.doCommand 'set_minutes_so_far', e.target.value
@@ -50,7 +50,7 @@ IntentionComponent = React.createClass
         input
           type: 'text'
           value: ifNull(@state.minutesEstimateEdit,
-            formatTime(@props.minutesEstimate))
+            formatDuration(@props.minutesEstimate))
           onBlur: (e) =>
             @setState minutesEstimateEdit: null
             @props.doCommand 'set_minutes_estimate', e.target.value
