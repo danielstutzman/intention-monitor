@@ -52,11 +52,6 @@
       }
     });
 
-    document.getElementById('testButton').addEventListener(
-        'click', function(e) {
-      alertSection.showAlert('test');
-    });
-
     var aWhileSinceInputTimeout = null;
     var aWhileSinceInput = function() {
       document.getElementById('keyCapture').focus();
@@ -97,5 +92,3 @@
 #schedule(style='display:none')
 #alert
 %input#keyCapture(type='text' style='background-color:black; border:0;')
-%button#testButton
-  showAlert
