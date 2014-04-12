@@ -67,6 +67,7 @@
     var aWhileSinceInputTimeout = null;
     var aWhileSinceInput = function() {
       document.getElementById('keyCapture').focus();
+      aWhileSinceInputTimeout = null;
     };
     window.addEventListener('keydown', function(e) {
       window.clearTimeout(aWhileSinceInputTimeout);
@@ -83,6 +84,16 @@
       aWhileSinceInputTimeout = window.setTimeout(aWhileSinceInput,
         MILLIS_TO_LOSE_FOCUS);
     });
+
+    var checkIfPastBedtime = function() {
+      if (aWhileSinceInputTimeout == null && bedtimeSection.isPastBedtime()) {
+        document.getElementById('intention').style.display = 'none';
+        document.getElementById('schedule').style.display = 'none';
+        document.getElementById('bedtime').style.display = 'block';
+        bedtimeSection.focus();
+      }
+    };
+    window.setInterval(checkIfPastBedtime, 60 * 1000);
 
     intentionSection.run();
     scheduleSection.run();
