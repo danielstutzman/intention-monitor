@@ -51,10 +51,11 @@ ScheduleComponent = React.createClass
             width: left_for_hour(activity.hourFinish) -
               left_for_hour(activity.hourStart) - 2
           activity.name
-      div
-        className: 'current-time'
-        style:
-          left: left_for_hour(@props.currentHour)
+      if @props.currentHour <= 23 # prevent horizontal scroll bar
+        div
+          className: 'current-time'
+          style:
+            left: left_for_hour(@props.currentHour)
       br {}
       textarea
         className: 'js-activities-text'
