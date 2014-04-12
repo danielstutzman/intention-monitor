@@ -1,16 +1,13 @@
 IntentionComponent = require('./app/IntentionComponent.coffee')
 
-[OKAY, LATE, ACKNOWLEDGED] = [1, 2, 3]
-
 class IntentionSection
 
-  constructor: (targetDiv) ->
+  constructor: (targetDiv, alertSection) ->
     @targetDiv = targetDiv
-    @flashingInterval = null
-    @flashingStatus = OKAY
+    @alertSection = alertSection
 
     parseTime = (text) ->
-      if text == ''
+      if text.trim() == ''
         null
       else if text.split(':').length > 1
         [h, m] = text.split(':')
@@ -35,60 +32,25 @@ class IntentionSection
   _render: =>
     React.renderComponent(IntentionComponent(@props), @targetDiv)
 
-  _setRedBackground: (addRed) =>
-    classes = (@targetDiv.className || '').split(' ')
-    if addRed
-      classes.push('flashing') unless classes.indexOf('flashing') != -1
-    else
-      classes = _.without(classes, 'flashing')
-    @targetDiv.className = classes.join(' ')
-
   _updateFlashingStatus: =>
-    toggleRedBackground = =>
-      classes = (@targetDiv.className || '').split(' ')
-      isFlashing = classes.indexOf('flashing') != -1
-      @_setRedBackground !isFlashing
-    if @props.isPaused
-      @flashingStatus = OKAY
-      @_setRedBackground false
-    else if @props.minutesEstimate == null
-      @flashingStatus = OKAY
-      @_setRedBackground false
+    if @isWithinEstimate()
+      @alertSection.stopFlashingAndHideAlert()
     else
-      if @props.minutesSoFar <= @props.minutesEstimate
-        if @flashingStatus != OKAY
-          @flashingStatus = OKAY
-          @_setRedBackground false
-      else
-        if @flashingStatus != LATE
-          @flashingStatus = LATE
-          @flashingInterval = window.setInterval toggleRedBackground, 1000
+      @alertSection.showAlert('over planned time limit')
 
   run: =>
     everyMinute = =>
-      if !@props.isPaused
-        @props.minutesSoFar += 1
-        @_updateFlashingStatus()
-        @_render()
+      @props.minutesSoFar += 1
+      @_updateFlashingStatus()
+      @_render()
     window.setInterval everyMinute, 60 * 1000
     @_render()
-
-    window.addEventListener 'keydown', (e) =>
-      # stop flashing
-      if @flashingStatus == LATE
-        window.clearInterval @flashingInterval
-        @_setRedBackground true
-        @flashingStatus = ACKNOWLEDGED
 
   focus: =>
     @targetDiv.querySelector('.js-minutes-so-far').focus()
 
-  togglePause: =>
-    @props.isPaused = !@props.isPaused
-    @_updateFlashingStatus()
-    @_render()
-
   isWithinEstimate: =>
-    @flashingStatus == OKAY && @props.minutesEstimate != null
+    @props.minutesEstimate == null ||
+      @props.minutesSoFar <= @props.minutesEstimate
 
 module.exports = IntentionSection
