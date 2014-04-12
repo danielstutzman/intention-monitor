@@ -5,7 +5,10 @@ MorningComponent = React.createClass
 
   displayName: 'MorningComponent'
 
-  propTypes: {}
+  propTypes:
+    plan:                   type.string.isRequired
+    planHighlightedLineNum: type.number.isRequired
+    doCommand:              type.func.isRequired
 
   getInitialState: -> {}
 
@@ -20,5 +23,14 @@ MorningComponent = React.createClass
 
       textarea
         className: 'js-morning-plan'
+        value: @props.plan
+        onChange: (e) =>
+          @props.doCommand 'change_plan', e.target.value
+
+      if @props.planHighlightedLineNum > 0
+        div
+          className: 'morning-plan-highlight'
+          style:
+            top: "#{@props.planHighlightedLineNum * 30}px"
 
 module.exports = MorningComponent

@@ -6,6 +6,8 @@
   var F4_KEY_CODE    = 115;
   var F5_KEY_CODE    = 116;
   var SPACE_KEY_CODE = 32;
+  var UP_KEY_CODE    = 38;
+  var DOWN_KEY_CODE  = 40;
   var MILLIS_TO_LOSE_FOCUS = 60 * 1000;
 
   var _ = require('underscore');
@@ -68,9 +70,13 @@
 
     document.getElementById('keyCapture').addEventListener(
         'keydown', function(e) {
-      if (e.keyCode == SPACE_KEY_CODE) {
-        showSection('intention');
-        intentionSection.togglePause();
+      if (e.keyCode == UP_KEY_CODE) {
+        showSection('morning');
+        morningSection.changePlanHighlightedLineNum(-1);
+        e.preventDefault();
+      } else if (e.keyCode == DOWN_KEY_CODE) {
+        showSection('morning');
+        morningSection.changePlanHighlightedLineNum(1);
         e.preventDefault();
       }
     });
