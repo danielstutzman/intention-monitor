@@ -30,6 +30,8 @@ BedtimeComponent = React.createClass
       className: 'section'
 
       div { className: 'key-label' }, 'F4'
+      br {}
+      br {}
 
       'Time:'
       input
@@ -41,6 +43,14 @@ BedtimeComponent = React.createClass
         onBlur: (e) =>
           @setState timeEdit: null
           @props.doCommand 'change_time', e.target.value
+
+      br {}
+      'Reason:'
+      textarea
+        className: 'js-bedtime-reason'
+        value: @props.reason
+        onChange: (e) =>
+          @props.doCommand 'change_reason', e.target.value
         spellCheck: false
 
 module.exports = BedtimeComponent
