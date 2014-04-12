@@ -62,5 +62,6 @@ ScheduleComponent = React.createClass
         value: @props.activitiesText
         onChange: (e) =>
           @props.doCommand 'change_activities', e.target.value
+        spellCheck: false
 
 module.exports = ScheduleComponent
