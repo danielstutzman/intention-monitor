@@ -10,6 +10,7 @@ class MorningSection
         "F3 check fridge & schedule any cooking\n" +
         "F3 check calendar & schedule any events\n" +
         "F3 check email & schedule any todos\n" +
+        "F3 check Things app & schedule any todos\n" +
         "F3 schedule other major known todos\n"
       planHighlightedLineNum: 0 # 0 means no highlight, 1 means 1st line
       doCommand: (command, args) =>
