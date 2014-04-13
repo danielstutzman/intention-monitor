@@ -112,6 +112,7 @@
         if (bedtimeSection.isPastBedtime() && currentSection != 'bedtime') {
           showSection('bedtime');
         } else if (morningSection.hasHighlightedLineNum()) {
+          setSleep(false); // turn on screen if it's off
           showSection('morning');
         }
       }
