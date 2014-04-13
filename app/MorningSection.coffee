@@ -24,8 +24,10 @@ class MorningSection
     initHighlightIfNeeded = =>
       now = new Date()
       todaysDate = "#{now.getFullYear()}-#{now.getMonth()+1}-#{now.getDate()}"
-      if @lastDayWithHighlightInit == null ||
-          @lastDayWithHighlightInit != todaysDate
+      if @lastDayWithHighlightInit == null
+        @lastDayWithHighlightInit = todaysDate
+        # don't highlight morning tasks the first day the app was run
+      else if @lastDayWithHighlightInit != todaysDate
         @lastDayWithHighlightInit = todaysDate
         if @props.planHighlightedLineNum == 0
           @props.planHighlightedLineNum = 1
