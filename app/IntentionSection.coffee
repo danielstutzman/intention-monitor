@@ -41,9 +41,10 @@ class IntentionSection
 
   run: =>
     everyMinute = =>
-      @props.minutesSoFar += 1
-      @_updateFlashingStatus()
-      @_render()
+      if @props.minutesEstimate != null
+        @props.minutesSoFar += 1
+        @_updateFlashingStatus()
+        @_render()
     window.setInterval everyMinute, 60 * 1000
     @_render()
 
