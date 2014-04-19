@@ -2,16 +2,18 @@ ScheduleComponent = require('./app/ScheduleComponent.coffee')
 
 class ScheduleSection
 
-  constructor: (targetDiv) ->
+  constructor: (targetDiv, storage) ->
     @targetDiv = targetDiv
+    @storage   = storage
 
   run: =>
     props =
-      activitiesText: ''
+      activitiesText: @storage.getItem('ScheduleSection') || ''
       currentHour: null
-      doCommand: (command, args) ->
+      doCommand: (command, args) =>
         if command == 'change_activities'
           props.activitiesText = args
+          @storage.setItem 'ScheduleSection', props.activitiesText
           render()
     render = =>
       React.renderComponent(ScheduleComponent(props), @targetDiv)
