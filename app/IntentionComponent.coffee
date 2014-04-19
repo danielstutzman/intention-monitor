@@ -65,7 +65,7 @@ IntentionComponent = React.createClass
         br {}
         'web browse)'
 
-      textarea defaultValue: ''
+      textarea defaultValue: '', spellCheck: false
 
       div { className: 'pause-symbol' }, _.map([1..3], (i) -> div({ key: i }))
 
