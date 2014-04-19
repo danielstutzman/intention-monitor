@@ -5,11 +5,17 @@
   var F3_KEY_CODE    = 114;
   var F4_KEY_CODE    = 115;
   var F5_KEY_CODE    = 116;
+  var F6_KEY_CODE    = 117;
+  var F7_KEY_CODE    = 118;
+  var F8_KEY_CODE    = 119;
   var _1_KEY_CODE    = 49;
   var _2_KEY_CODE    = 50;
   var _3_KEY_CODE    = 51;
   var _4_KEY_CODE    = 52;
   var _5_KEY_CODE    = 53;
+  var _6_KEY_CODE    = 54;
+  var _7_KEY_CODE    = 55;
+  var _8_KEY_CODE    = 56;
   var SPACE_KEY_CODE = 32;
   var UP_KEY_CODE    = 38;
   var DOWN_KEY_CODE  = 40;
@@ -29,6 +35,7 @@
   var  ScheduleSection = require('./app/ScheduleSection.coffee');
   var     AlertSection = require('./app/AlertSection.coffee');
   var   MorningSection = require('./app/MorningSection.coffee');
+  var TextAreaSection  = require('./app/TextAreaSection.coffee');
   document.addEventListener('DOMContentLoaded', function() {
     var alertSection =
       new AlertSection(document.getElementById('alert'));
@@ -38,10 +45,21 @@
       new ScheduleSection(document.getElementById('schedule'), localStorage);
     var morningSection =
       new MorningSection(document.getElementById('morning'));
+    var imaginingsSection = new TextAreaSection(
+      'F5', 'Imaginings', document.getElementById('imaginings'), localStorage);
+    var eventuallySection = new TextAreaSection(
+      'F6', 'Needs Eventually Done / Deadline / Email',
+      document.getElementById('eventually'), localStorage);
+    var towardSection = new TextAreaSection(
+      'F7', 'What I\'m Working Toward',
+      document.getElementById('toward'), localStorage);
+    var selfSection = new TextAreaSection(
+      'F8', 'Self-Improvement', document.getElementById('self'), localStorage);
 
     var showSection = function(newCurrentSection) {
       currentSection = newCurrentSection;
-      _.forEach(['morning', 'intention', 'schedule'],
+      _.forEach(['morning', 'intention', 'schedule',
+                 'imaginings', 'eventually', 'toward', 'self'],
           function(name2) {
         document.getElementById(name2).style.display = 'none';
       });
@@ -51,20 +69,36 @@
     showSection(currentSection);
 
     window.addEventListener('keydown', function(e) {
-      if (e.keyCode == F1_KEY_CODE || e.keyCode == _1_KEY_CODE) {
+      if (e.keyCode == F1_KEY_CODE) {
         showSection('morning');
         morningSection.focus();
         e.preventDefault();
-      } else if (e.keyCode == F2_KEY_CODE || e.keyCode == _2_KEY_CODE) {
+      } else if (e.keyCode == F2_KEY_CODE) {
         showSection('intention');
         intentionSection.focus();
         e.preventDefault();
-      } else if (e.keyCode == F3_KEY_CODE || e.keyCode == _3_KEY_CODE) {
+      } else if (e.keyCode == F3_KEY_CODE) {
         showSection('schedule');
         scheduleSection.focus();
         e.preventDefault();
-      } else if (e.keyCode == F4_KEY_CODE || e.keyCode == _4_KEY_CODE) {
+      } else if (e.keyCode == F4_KEY_CODE) {
         setSleep(true);
+        e.preventDefault();
+      } else if (e.keyCode == F5_KEY_CODE) {
+        showSection('imaginings');
+        imaginingsSection.focus();
+        e.preventDefault();
+      } else if (e.keyCode == F6_KEY_CODE) {
+        showSection('eventually');
+        eventuallySection.focus();
+        e.preventDefault();
+      } else if (e.keyCode == F7_KEY_CODE) {
+        showSection('toward');
+        towardSection.focus();
+        e.preventDefault();
+      } else if (e.keyCode == F8_KEY_CODE) {
+        showSection('self');
+        selfSection.focus();
         e.preventDefault();
       }
     });
@@ -73,14 +107,45 @@
         'keydown', function(e) {
       if (currentSection == 'morning') {
         if (e.keyCode == UP_KEY_CODE) {
-          showSection('morning');
           morningSection.changePlanHighlightedLineNum(-1);
           e.preventDefault();
         } else if (e.keyCode == DOWN_KEY_CODE) {
-          showSection('morning');
           morningSection.changePlanHighlightedLineNum(1);
           e.preventDefault();
         }
+      }
+
+      if (e.keyCode == _1_KEY_CODE) {
+        showSection('morning');
+        morningSection.focus();
+        e.preventDefault();
+      } else if (e.keyCode == _2_KEY_CODE) {
+        showSection('intention');
+        intentionSection.focus();
+        e.preventDefault();
+      } else if (e.keyCode == _3_KEY_CODE) {
+        showSection('schedule');
+        scheduleSection.focus();
+        e.preventDefault();
+      } else if (e.keyCode == _4_KEY_CODE) {
+        setSleep(true);
+        e.preventDefault();
+      } else if (e.keyCode == _5_KEY_CODE) {
+        showSection('imaginings');
+        imaginingsSection.focus();
+        e.preventDefault();
+      } else if (e.keyCode == _6_KEY_CODE) {
+        showSection('eventually');
+        eventuallySection.focus();
+        e.preventDefault();
+      } else if (e.keyCode == _7_KEY_CODE) {
+        showSection('toward');
+        towardSection.focus();
+        e.preventDefault();
+      } else if (e.keyCode == _8_KEY_CODE) {
+        showSection('self');
+        selfSection.focus();
+        e.preventDefault();
       }
     });
 
@@ -119,6 +184,10 @@
     scheduleSection.run();
     alertSection.run();
     morningSection.run();
+    imaginingsSection.run();
+    eventuallySection.run();
+    towardSection.run();
+    selfSection.run();
     document.getElementById('keyCapture').focus();
 
     var stream = new EventSource('/stream');
@@ -136,4 +205,8 @@
 #intention
 #schedule
 #alert
+#imaginings
+#eventually
+#toward
+#self
 %input#keyCapture(type='text' style='background-color:black; border:0;')
