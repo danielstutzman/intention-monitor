@@ -28,7 +28,6 @@
   var IntentionSection = require('./app/IntentionSection.coffee');
   var  ScheduleSection = require('./app/ScheduleSection.coffee');
   var     AlertSection = require('./app/AlertSection.coffee');
-  var   BedtimeSection = require('./app/BedtimeSection.coffee');
   var   MorningSection = require('./app/MorningSection.coffee');
   document.addEventListener('DOMContentLoaded', function() {
     var alertSection =
@@ -37,14 +36,12 @@
       new IntentionSection(document.getElementById('intention'), alertSection);
     var scheduleSection =
       new ScheduleSection(document.getElementById('schedule'));
-    var bedtimeSection =
-      new BedtimeSection(document.getElementById('bedtime'));
     var morningSection =
       new MorningSection(document.getElementById('morning'));
 
     var showSection = function(newCurrentSection) {
       currentSection = newCurrentSection;
-      _.forEach(['morning', 'intention', 'schedule', 'bedtime'],
+      _.forEach(['morning', 'intention', 'schedule'],
           function(name2) {
         document.getElementById(name2).style.display = 'none';
       });
@@ -65,10 +62,6 @@
       } else if (e.keyCode == F3_KEY_CODE || e.keyCode == _3_KEY_CODE) {
         showSection('schedule');
         scheduleSection.focus();
-        e.preventDefault();
-      } else if (e.keyCode == F4_KEY_CODE || e.keyCode == _4_KEY_CODE) {
-        showSection('bedtime');
-        bedtimeSection.focus();
         e.preventDefault();
       } else if (e.keyCode == F5_KEY_CODE || e.keyCode == _5_KEY_CODE) {
         setSleep(true);
@@ -114,9 +107,7 @@
 
     var checkIfReminderNeeded = function() {
       if (aWhileSinceInputTimeout == null) {
-        if (bedtimeSection.isPastBedtime() && currentSection != 'bedtime') {
-          showSection('bedtime');
-        } else if (morningSection.hasHighlightedLineNum()) {
+        if (morningSection.hasHighlightedLineNum()) {
           setSleep(false); // turn on screen if it's off
           showSection('morning');
         }
@@ -127,7 +118,6 @@
     intentionSection.run();
     scheduleSection.run();
     alertSection.run();
-    bedtimeSection.run();
     morningSection.run();
     document.getElementById('keyCapture').focus();
 
@@ -145,6 +135,5 @@
 #morning
 #intention
 #schedule
-#bedtime
 #alert
 %input#keyCapture(type='text' style='background-color:black; border:0;')
