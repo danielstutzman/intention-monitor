@@ -5,6 +5,11 @@
   var F3_KEY_CODE    = 114;
   var F4_KEY_CODE    = 115;
   var F5_KEY_CODE    = 116;
+  var _1_KEY_CODE    = 49;
+  var _2_KEY_CODE    = 50;
+  var _3_KEY_CODE    = 51;
+  var _4_KEY_CODE    = 52;
+  var _5_KEY_CODE    = 53;
   var SPACE_KEY_CODE = 32;
   var UP_KEY_CODE    = 38;
   var DOWN_KEY_CODE  = 40;
@@ -49,23 +54,23 @@
     showSection(currentSection);
 
     window.addEventListener('keydown', function(e) {
-      if (e.keyCode == F1_KEY_CODE) {
+      if (e.keyCode == F1_KEY_CODE || e.keyCode == _1_KEY_CODE) {
         showSection('morning');
         morningSection.focus();
         e.preventDefault();
-      } else if (e.keyCode == F2_KEY_CODE) {
+      } else if (e.keyCode == F2_KEY_CODE || e.keyCode == _2_KEY_CODE) {
         showSection('intention');
         intentionSection.focus();
         e.preventDefault();
-      } else if (e.keyCode == F3_KEY_CODE) {
+      } else if (e.keyCode == F3_KEY_CODE || e.keyCode == _3_KEY_CODE) {
         showSection('schedule');
         scheduleSection.focus();
         e.preventDefault();
-      } else if (e.keyCode == F4_KEY_CODE) {
+      } else if (e.keyCode == F4_KEY_CODE || e.keyCode == _4_KEY_CODE) {
         showSection('bedtime');
         bedtimeSection.focus();
         e.preventDefault();
-      } else if (e.keyCode == F5_KEY_CODE) {
+      } else if (e.keyCode == F5_KEY_CODE || e.keyCode == _5_KEY_CODE) {
         setSleep(true);
         e.preventDefault();
       }
