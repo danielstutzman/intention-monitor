@@ -30,7 +30,7 @@ IntentionComponent = React.createClass
     maybePaused =
       if @props.isPaused then 'paused' else ''
 
-    div { className: "section #{maybePaused}" },
+    div { id: 'intention', className: "section #{maybePaused}" },
       div { className: 'key-label' }, 'F2'
       div { className: 'time' },
         input
