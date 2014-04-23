@@ -59,11 +59,6 @@ IntentionComponent = React.createClass
         br {}
         label {},
           'ESTIMATE'
-        br {}
-        br {}
-        '(stand to'
-        br {}
-        'web browse)'
 
       textarea defaultValue: '', spellCheck: false
 
