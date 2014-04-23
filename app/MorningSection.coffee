@@ -6,8 +6,11 @@ class MorningSection
     @targetDiv = targetDiv
     @lastDayWithHighlightInit = null
     @props =
-      plan: """F3 check calendar & schedule any events
-               F3 check email & schedule any todos
+      plan: """
+               NO FACEBOOK OR EMAIL OR NEWS until done:
+               F3 check calendar & schedule any events
+               F3 check emails/texts & schedule any todos
+               respond to any time-critical emails/texts
                F3 check Things app & schedule any todos
                F3 check fridge & schedule any cooking
                eat breakfast
