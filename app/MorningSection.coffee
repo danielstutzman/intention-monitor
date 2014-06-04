@@ -2,23 +2,27 @@ MorningComponent = require('./app/MorningComponent.coffee')
 
 class MorningSection
 
-  constructor: (targetDiv) ->
+  constructor: (targetDiv, storage) ->
     @targetDiv = targetDiv
+    @storage = storage
     @lastDayWithHighlightInit = null
     @props =
-      plan: """F3 check calendar & schedule any events
-               F3 check email & schedule any todos
-               F3 check Things app & schedule any todos
-               F3 check fridge & schedule any cooking
-               eat breakfast
-               5 min meditation
-               cry
-               shower
-               """
+      plan: @storage.getItem('MorningSection') ||
+        """F3 check calendar & schedule any events
+        F3 check email & schedule any todos
+        F3 check Things app & schedule any todos
+        F3 check fridge & schedule any cooking
+        eat breakfast
+        shave
+        sunscreen
+        run
+        shower
+        """
       planHighlightedLineNum: 0 # 0 means no highlight, 1 means 1st line
       doCommand: (command, args) =>
         if command == 'change_plan'
           @props.plan = args
+          @storage.setItem 'MorningSection', @props.plan
           @_render()
 
   _render: () =>
