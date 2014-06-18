@@ -35,7 +35,8 @@
   var  ScheduleSection = require('./app/ScheduleSection.coffee');
   var     AlertSection = require('./app/AlertSection.coffee');
   var   MorningSection = require('./app/MorningSection.coffee');
-  var TextAreaSection  = require('./app/TextAreaSection.coffee');
+  var  TextAreaSection = require('./app/TextAreaSection.coffee');
+  var   BedtimeSection = require('./app/BedtimeSection.coffee');
   document.addEventListener('DOMContentLoaded', function() {
     var alertSection =
       new AlertSection(document.getElementById('alert'));
@@ -45,21 +46,12 @@
       new ScheduleSection(document.getElementById('schedule'), localStorage);
     var morningSection =
       new MorningSection(document.getElementById('morning'), localStorage);
-    var imaginingsSection = new TextAreaSection(
-      'F5', 'Imaginings', document.getElementById('imaginings'), localStorage);
-    var eventuallySection = new TextAreaSection(
-      'F6', 'Needs Eventually Done / Deadline / Email',
-      document.getElementById('eventually'), localStorage);
-    var towardSection = new TextAreaSection(
-      'F7', 'What I\'m Working Toward',
-      document.getElementById('toward'), localStorage);
-    var selfSection = new TextAreaSection(
-      'F8', 'Self-Improvement', document.getElementById('self'), localStorage);
+    var bedtimeSection = new BedtimeSection(
+      document.getElementById('bedtime'), localStorage);
 
     var showSection = function(newCurrentSection) {
       currentSection = newCurrentSection;
-      _.forEach(['morning', 'intention', 'schedule',
-                 'imaginings', 'eventually', 'toward', 'self'],
+      _.forEach(['morning', 'intention', 'schedule', 'bedtime'],
           function(name2) {
         document.getElementById(name2).style.display = 'none';
       });
@@ -82,23 +74,11 @@
         scheduleSection.focus();
         e.preventDefault();
       } else if (e.keyCode == F4_KEY_CODE) {
-        setSleep(true);
+        showSection('bedtime');
+        bedtimeSection.focus();
         e.preventDefault();
       } else if (e.keyCode == F5_KEY_CODE) {
-        showSection('imaginings');
-        imaginingsSection.focus();
-        e.preventDefault();
-      } else if (e.keyCode == F6_KEY_CODE) {
-        showSection('eventually');
-        eventuallySection.focus();
-        e.preventDefault();
-      } else if (e.keyCode == F7_KEY_CODE) {
-        showSection('toward');
-        towardSection.focus();
-        e.preventDefault();
-      } else if (e.keyCode == F8_KEY_CODE) {
-        showSection('self');
-        selfSection.focus();
+        setSleep(true);
         e.preventDefault();
       }
     });
@@ -111,6 +91,14 @@
           e.preventDefault();
         } else if (e.keyCode == DOWN_KEY_CODE) {
           morningSection.changePlanHighlightedLineNum(1);
+          e.preventDefault();
+        }
+      } else if (currentSection == 'bedtime') {
+        if (e.keyCode == UP_KEY_CODE) {
+          bedtimeSection.changePlanHighlightedLineNum(-1);
+          e.preventDefault();
+        } else if (e.keyCode == DOWN_KEY_CODE) {
+          bedtimeSection.changePlanHighlightedLineNum(1);
           e.preventDefault();
         }
       }
@@ -128,23 +116,11 @@
         scheduleSection.focus();
         e.preventDefault();
       } else if (e.keyCode == _4_KEY_CODE) {
-        setSleep(true);
+        showSection('bedtime');
+        bedtimeSection.focus();
         e.preventDefault();
       } else if (e.keyCode == _5_KEY_CODE) {
-        showSection('imaginings');
-        imaginingsSection.focus();
-        e.preventDefault();
-      } else if (e.keyCode == _6_KEY_CODE) {
-        showSection('eventually');
-        eventuallySection.focus();
-        e.preventDefault();
-      } else if (e.keyCode == _7_KEY_CODE) {
-        showSection('toward');
-        towardSection.focus();
-        e.preventDefault();
-      } else if (e.keyCode == _8_KEY_CODE) {
-        showSection('self');
-        selfSection.focus();
+        setSleep(true);
         e.preventDefault();
       }
     });
@@ -172,41 +148,40 @@
 
     var checkIfReminderNeeded = function() {
       if (aWhileSinceInputTimeout == null) {
-        if (morningSection.hasHighlightedLineNum()) {
+        if (bedtimeSection.isPastBedtime() && currentSection != 'bedtime') {
+          showSection('bedtime');
+        } else if (morningSection.hasHighlightedLineNum()) {
           setSleep(false); // turn on screen if it's off
           showSection('morning');
         }
       }
     };
-    window.setInterval(checkIfReminderNeeded, 60 * 60 * 1000);
+    window.setInterval(checkIfReminderNeeded, 60 * 1000);
 
     intentionSection.run();
     scheduleSection.run();
     alertSection.run();
     morningSection.run();
-    imaginingsSection.run();
-    eventuallySection.run();
-    towardSection.run();
-    selfSection.run();
+    bedtimeSection.run();
     document.getElementById('keyCapture').focus();
 
-    var stream = new EventSource('/stream');
-    stream.onmessage = function(e) {
-      if (e.data === 'noticed-browsing') {
-        if (!intentionSection.isWithinEstimate()) {
-          setSleep(false); // turn on screen if it's off
-          alertSection.addAlert('if browsing, stand or schedule; store after');
+    if (false) {
+      var stream = new EventSource('/stream');
+      stream.onmessage = function(e) {
+        if (e.data === 'noticed-browsing') {
+          if (!intentionSection.isWithinEstimate()) {
+            setSleep(false); // turn on screen if it's off
+            alertSection.addAlert(
+              'if browsing, stand or schedule; store after');
+          }
         }
-      }
-    };
+      };
+    }
   }, false);
 
 #morning
 #intention
 #schedule
 #alert
-#imaginings
-#eventually
-#toward
-#self
+#bedtime
 %input#keyCapture(type='text' style='background-color:black; border:0;')
