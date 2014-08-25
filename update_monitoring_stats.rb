@@ -8,6 +8,9 @@ require 'dotenv'
 
 Dotenv.load! ".env.apis"
 
+puts 'Wait for web server to start...'
+sleep 5
+
 while true
 
 puts 'Getting papertrail usage...'
