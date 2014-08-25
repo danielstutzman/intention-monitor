@@ -1,4 +1,4 @@
 web: bundle exec rackup -p 9292
 beanstalkd: beanstalkd
 beaneater: bundle exec ruby beaneater.rb
-check_usage: bundle exec ruby check_usage.rb
+update_monitoring_stats: bundle exec ruby update_monitoring_stats.rb

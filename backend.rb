@@ -80,8 +80,14 @@ module IntentionMonitor
       'ok'
     end
 
-    get '/three' do
-      haml :three
+    post '/update_monitoring_stats' do
+      request.body.rewind
+      payload = request.body.read
+
+      settings.connections.each { |out|
+        out << "event: update_monitoring_stats\ndata: #{payload}\n\n"
+      }
+      'ok'
     end
   end
 end

@@ -165,20 +165,37 @@
     bedtimeSection.run();
     document.getElementById('keyCapture').focus();
 
-    if (false) {
-      var stream = new EventSource('/stream');
-      stream.onmessage = function(e) {
-        if (e.data === 'noticed-browsing') {
-          if (!intentionSection.isWithinEstimate()) {
-            setSleep(false); // turn on screen if it's off
-            alertSection.addAlert(
-              'if browsing, stand or schedule; store after');
-          }
+    var stream = new EventSource('/stream');
+    stream.onmessage = function(e) {
+      if (e.data === 'noticed-browsing') {
+        if (!intentionSection.isWithinEstimate()) {
+          setSleep(false); // turn on screen if it's off
+          alertSection.addAlert(
+            'if browsing, stand or schedule; store after');
         }
-      };
-    }
+      } else {
+        console.log('Unknown message ' + e.data);
+      }
+    };
+    stream.addEventListener('update_monitoring_stats', function(e) {
+      var data = JSON.parse(e.data);
+      console.log('update_monitoring_stats', data);
+      var html =
+        "papertrail=" + parseInt(data.papertrail.log_data_transfer_used_percent) + "," +
+        "health_status=" + data.newrelic.health_status + ", " +
+        "last_reported_at=" + data.newrelic.last_reported_at + ", " +
+        "response_time=" + data.newrelic.application_summary.response_time + ", " +
+        "<br>" + "servers=";
+      for (var i = 0; i < 3; i += 1) {
+        html += data.newrelic2.servers[i].summary.cpu + "/";
+        html += data.newrelic2.servers[i].summary.memory + "/";
+        html += data.newrelic2.servers[i].summary.fullest_disk + ", ";
+      }
+      document.getElementById('monitoring').innerHTML = html;
+    });
   }, false);
 
+#monitoring
 #morning
 #intention
 #schedule
