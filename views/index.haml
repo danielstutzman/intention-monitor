@@ -20,6 +20,7 @@
   var UP_KEY_CODE    = 38;
   var DOWN_KEY_CODE  = 40;
   var MILLIS_TO_LOSE_FOCUS = 60 * 1000;
+  var MILLIS_TO_EXPIRE_MONITORING = 2 * 60 * 1000;
 
   var _ = require('underscore');
 
@@ -165,6 +166,11 @@
     bedtimeSection.run();
     document.getElementById('keyCapture').focus();
 
+    var expireMonitoring = function() {
+      document.getElementById('monitoring').style.backgroundColor = 'red';
+    };
+    var expireMonitoringTimeout = null;
+
     var stream = new EventSource('/stream');
     stream.onmessage = function(e) {
       if (e.data === 'noticed-browsing') {
@@ -192,6 +198,12 @@
         html += data.newrelic2.servers[i].summary.fullest_disk + ", ";
       }
       document.getElementById('monitoring').innerHTML = html;
+
+      if (expireMonitoringTimeout) {
+        window.clearTimeout(expireMonitoringTimeout);
+      }
+      expireMonitoringTimeout =
+        window.setTimeout(expireMonitoring, MILLIS_TO_EXPIRE_MONITORING);
     });
   }, false);
 
