@@ -8,6 +8,10 @@ require 'dotenv'
 
 Dotenv.load! ".env.apis"
 
+def gmt_to_local(gmt)
+  Time.parse(gmt).strftime('%Y-%m-%d %H:%M:%S')
+end
+
 puts 'Wait for web server to start...'
 sleep 5
 
@@ -28,6 +32,8 @@ json = open(url, headers).read
 newrelic_hash = JSON.parse(json)#['application_instance']['application_summary']
 newrelic_hash = newrelic_hash['applications'].find { |app|
   app['name'] == 'Basic Ruby' }
+newrelic_hash['last_reported_at'] =
+  gmt_to_local(newrelic_hash['last_reported_at'])
 pp newrelic_hash
 
 puts 'Getting New Relic 2...'
@@ -35,6 +41,9 @@ headers = { 'X-Api-Key' => key }
 url = "https://api.newrelic.com/v2/servers.json"
 json = open(url, headers).read
 newrelic2_hash = JSON.parse(json)
+newrelic2_hash['servers'].each do |server|
+  server['last_reported_at'] = gmt_to_local(server['last_reported_at'])
+end
 pp newrelic2_hash
 
 puts 'Posting to monitor...'
