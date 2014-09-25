@@ -198,6 +198,7 @@
         html += data.newrelic2.servers[i].summary.fullest_disk + ", ";
       }
       document.getElementById('monitoring').innerHTML = html;
+      document.getElementById('monitoring').style.backgroundColor = null;
 
       if (expireMonitoringTimeout) {
         window.clearTimeout(expireMonitoringTimeout);
