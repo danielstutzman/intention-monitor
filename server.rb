@@ -27,26 +27,11 @@ class HelloApp < Sinatra::Base
 end
 
 def emit_event(app, event_name, data)
+  print 'Emitting event...'
   app.settings.connections.each do |out|
     out << "event: #{event_name}\ndata: #{data}\n\n"
   end
-end
-
-def handle_papertrail_usage(app, http)
-  if http.response_header.status != 200
-    STDERR.puts "#{http.response_header.status} from #{http.req.uri}:"
-    STDERR.puts http.response
-  end
-
-  begin
-    response = JSON.parse(http.response)
-    data = response['log_data_transfer_used_percent'].to_i
-  rescue => e
-    STDERR.puts e
-    data = 'error'
-  end
-
-  emit_event app, 'papertrail_usage', data
+  puts 'done.'
 end
 
 EventMachine.run do
@@ -60,11 +45,43 @@ EventMachine.run do
   })
 
   EventMachine.add_periodic_timer 5 do
+    print 'Checking Papertrail...'
     token = ENV['PAPERTRAIL_TOKEN'] or raise "Need ENV[PAPERTRAIL_TOKEN]"
     headers = { 'X-Papertrail-Token' => token }
     url = 'https://papertrailapp.com/api/v1/accounts.json'
     http = EventMachine::HttpRequest.new(url).get head: headers
-    http.errback  { handle_papertrail_usage(app, http) }
-    http.callback { handle_papertrail_usage(app, http) }
+    http.errback  do
+      STDERR.puts "#{http.response_header.status} from #{http.req.uri}:"
+      STDERR.puts http.response
+      emit_event app, 'papertrail_usage_percent', 'error'
+    end
+    http.callback do
+      puts 'done.'
+      begin
+        response = JSON.parse(http.response)
+        data = response['log_data_transfer_used_percent']
+      rescue => e
+        STDERR.puts e
+        data = 'error'
+      end
+
+      emit_event app, 'papertrail_usage_percent', data
+
+      print 'Posting to InfluxDB...'
+      url = 'http://localhost:8086/db/root/series?u=root&p=root'
+      json = [{
+        name: 'papertrail_metrics',
+        columns: ['paper_trail_usage_percent'],
+        points: [[data]],
+      }].to_json
+      http = EventMachine::HttpRequest.new(url).post body: json
+      http.errback  do
+        STDERR.puts "#{http.response_header.status} from #{http.req.uri}:"
+        STDERR.puts http.response
+      end
+      http.callback do
+        puts 'done.'
+      end
+    end
   end
 end
