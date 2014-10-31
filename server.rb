@@ -1,93 +1,70 @@
 require 'eventmachine'
 require 'sinatra/base'
 require 'thin'
+require 'dotenv'
+require 'em-http-request'
+require 'json'
 
+Dotenv.load! '.env.apis'
 
-# This example shows you how to embed Sinatra into your EventMachine
-# application. This is very useful if you're application needs some
-# sort of API interface and you don't want to use EM's provided
-# web-server.
-
-def run(opts)
-
-  # Start he reactor
-  EM.run do
-
-    # define some defaults for our app
-    server  = opts[:server] || 'thin'
-    host    = opts[:host]   || '0.0.0.0'
-    port    = opts[:port]   || '8181'
-    web_app = opts[:app]
-
-    # create a base-mapping that our application will set at. If I
-    # have the following routes:
-    #
-    #   get '/hello' do
-    #     'hello!'
-    #   end
-    #
-    #   get '/goodbye' do
-    #     'see ya later!'
-    #   end
-    #
-    # Then I will get the following:
-    #
-    #   mapping: '/'
-    #   routes:
-    #     /hello
-    #     /goodbye
-    #
-    #   mapping: '/api'
-    #   routes:
-    #     /api/hello
-    #     /api/goodbye
-    dispatch = Rack::Builder.app do
-      map '/' do
-        run web_app
-      end
-    end
-
-    # NOTE that we have to use an EM-compatible web-server. There
-    # might be more, but these are some that are currently available.
-    unless ['thin', 'hatetepe', 'goliath'].include? server
-      raise "Need an EM webserver, but #{server} isn't"
-    end
-
-    # Start the web server. Note that you are free to run other tasks
-    # within your EM instance.
-    Rack::Server.start({
-      app:    dispatch,
-      server: server,
-      Host:   host,
-      Port:   port,
-      signals: false,
-    })
-  end
-end
-
-# Our simple hello-world app
 class HelloApp < Sinatra::Base
-  # threaded - False: Will take requests on the reactor thread
-  #            True:  Will queue request for background thread
   configure do
-    set :threaded, false
+    set :threaded, false # true will queue requests to background thread
+    set :connections, [] # variable to store stream connections
   end
 
-  # Request runs on the reactor thread (with threaded set to false)
-  get '/hello' do
+  get '/' do
     'Hello World'
   end
 
-  # Request runs on the reactor thread (with threaded set to false)
-  # and returns immediately. The deferred task does not delay the
-  # response from the web-service.
-  get '/delayed-hello' do
-    EM.defer do
-      sleep 5
+  get '/stream', provides: 'text/event-stream' do
+    stream :keep_open do |out|
+      out << "event: update_monitoring_stats\ndata: this\n\n"
+      settings.connections << out
+      out.callback { settings.connections.delete(out) }
     end
-    'I\'m doing work in the background, but I am still free to take requests'
   end
 end
 
-# start the application
-run app: HelloApp.new
+def emit_event(app, event_name, data)
+  app.settings.connections.each do |out|
+    out << "event: #{event_name}\ndata: #{data}\n\n"
+  end
+end
+
+def handle_papertrail_usage(app, http)
+  if http.response_header.status != 200
+    STDERR.puts "#{http.response_header.status} from #{http.req.uri}:"
+    STDERR.puts http.response
+  end
+
+  begin
+    response = JSON.parse(http.response)
+    data = response['log_data_transfer_used_percent'].to_i
+  rescue => e
+    STDERR.puts e
+    data = 'error'
+  end
+
+  emit_event app, 'papertrail_usage', data
+end
+
+EventMachine.run do
+  app = HelloApp.new
+  Rack::Server.start({
+    app:    app,
+    server: 'thin',
+    Host:   '0.0.0.0',
+    Port:   '8181',
+    signals: false, # so Ctrl-C works
+  })
+
+  EventMachine.add_periodic_timer 5 do
+    token = ENV['PAPERTRAIL_TOKEN'] or raise "Need ENV[PAPERTRAIL_TOKEN]"
+    headers = { 'X-Papertrail-Token' => token }
+    url = 'https://papertrailapp.com/api/v1/accounts.json'
+    http = EventMachine::HttpRequest.new(url).get head: headers
+    http.errback  { handle_papertrail_usage(app, http) }
+    http.callback { handle_papertrail_usage(app, http) }
+  end
+end
