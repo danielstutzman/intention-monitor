@@ -59,7 +59,8 @@ def run(opts)
       app:    dispatch,
       server: server,
       Host:   host,
-      Port:   port
+      Port:   port,
+      signals: false,
     })
   end
 end
