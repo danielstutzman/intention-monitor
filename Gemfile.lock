@@ -14,6 +14,9 @@ GEM
       http_parser.rb (>= 0.6.0)
     em-socksify (0.3.0)
       eventmachine (>= 1.0.0.beta.4)
+    em-ssh (0.7.0)
+      eventmachine
+      net-ssh
     eventmachine (1.0.3)
     foreman (0.63.0)
       dotenv (>= 0.7)
@@ -21,6 +24,7 @@ GEM
     haml (4.0.5)
       tilt
     http_parser.rb (0.6.0)
+    net-ssh (2.9.1)
     rack (1.5.2)
     rack-protection (1.5.3)
       rack
@@ -43,6 +47,7 @@ DEPENDENCIES
   beaneater
   dotenv
   em-http-request
+  em-ssh
   eventmachine
   foreman
   haml
