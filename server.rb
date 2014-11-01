@@ -8,6 +8,7 @@ require 'em-ssh'
 require 'uri'
 
 Dotenv.load! '.env.apis'
+STDOUT.sync = true
 
 class HelloApp < Sinatra::Base
   configure do
@@ -105,18 +106,22 @@ class NginxAccessLogEventProvider
     @sequence_in_same_timestamp = nil
   end
   def run_with_callback
+    print "Opening SSH to #{@hostname}..."
     EventMachine::Ssh.start(*@ssh_args) do |conn|
       conn.errback do |e|
         STDERR.puts "#{e} (#{e.class})"
       end
       conn.callback do |ssh|
         channel = ssh.open_channel do |ch|
+          puts 'done.'
+          print 'Sending tail command...'
           ch.exec @tail_command do |ch, success|
+            puts 'done.'
             #raise 'could not execute command' unless success
             ch.on_data do |c, data| # (output to stdout)
-              events = data.split("\n").map do |line|
-                line_to_event(line)
-              end
+              lines = data.split("\n")
+              puts "Got #{lines.size} line(s) of data from tail."
+              events = lines.map { |line| line_to_event(line) }
               yield events.compact if events.size > 0
             end
             ch.on_extended_data do |c, type, data| # (output to stderr)
