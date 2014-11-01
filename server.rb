@@ -5,6 +5,7 @@ require 'dotenv'
 require 'em-http-request'
 require 'json'
 require 'em-ssh'
+require 'uri'
 
 Dotenv.load! '.env.apis'
 
@@ -35,7 +36,37 @@ def emit_event(app, event_name, data)
   puts 'done.'
 end
 
-def post_events_to_influxdb(series_name, events)
+def post_events_to_influxdb(series_name, events, assume_new)
+  already_posted_times = []
+  if assume_new
+    really_post_events_to_influxdb series_name, events
+  else
+    print 'Querying InfluxDB for existing timestamps...'
+    url = 'http://localhost:8086/db/root/series?u=root&p=root&q=' +
+      URI::encode("select * from #{series_name} limit #{events.size}")
+    http = EventMachine::HttpRequest.new(url).get
+    http.errback  do
+      STDERR.puts "#{http.response_header.status} from #{http.req.uri}:"
+      STDERR.puts http.response
+    end
+    http.callback do
+      datas = JSON.parse(http.response)
+      datas.each do |data|
+        which_column_is_time = data['columns'].index('time')
+        data['points'].each do |point|
+          already_posted_times.push point[which_column_is_time]
+        end
+      end
+      events.reject! do |event|
+        already_posted_times.include?(event['time'])
+      end
+      puts 'done.'
+      really_post_events_to_influxdb series_name, events
+    end
+  end
+end
+
+def really_post_events_to_influxdb(series_name, events)
   print 'Posting to InfluxDB...'
   url = 'http://localhost:8086/db/root/series?u=root&p=root'
 
@@ -120,14 +151,14 @@ class NginxAccessLogEventProvider
       if @sequence_in_same_timestamp != nil
         milliseconds = seconds_since_epoch * 1000 + @sequence_in_same_timestamp
         {
-          time:        milliseconds,
-          hostname:    @hostname,
-          ip_address:  match[:ip_address],
-          method:      match[:method],
-          path:        match[:path],
-          status_code: match[:status_code],
-          num_bytes:   match[:num_bytes],
-          is_monitis:  is_monitis,
+          'time'        => milliseconds,
+          'hostname'    => @hostname,
+          'ip_address'  => match[:ip_address],
+          'method'      => match[:method],
+          'path'        => match[:path],
+          'status_code' => match[:status_code],
+          'num_bytes'   => match[:num_bytes],
+          'is_monitis'  => is_monitis,
         }
       end
     else
@@ -196,8 +227,10 @@ EventMachine.run do
   tail_command = 'docker exec 9bb32 tail -f /var/log/nginx/access.log'
   provider     = NginxAccessLogEventProvider.new(
                    ssh_args, 'basicruby', tail_command)
+  is_first_time = true
   provider.run_with_callback do |events|
-    post_events_to_influxdb 'nginx_access_logs', events
+    post_events_to_influxdb 'nginx_access_logs', events, !is_first_time
+    is_first_time = false
   end
 
 end
