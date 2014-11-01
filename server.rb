@@ -35,6 +35,87 @@ def emit_event(app, event_name, data)
   puts 'done.'
 end
 
+def post_events_to_influxdb(series_name, events)
+  print 'Posting to InfluxDB...'
+  url = 'http://localhost:8086/db/root/series?u=root&p=root&time_precision=s'
+
+  all_keys = {}
+  events.each do |event|
+    event.keys.each do |key|
+      all_keys[key] = true
+    end
+  end
+
+  json = [{
+    name:    series_name,
+    columns: all_keys.keys,
+    points:  events.map { |event| event.values_at(*all_keys.keys) },
+  }].to_json
+
+  http = EventMachine::HttpRequest.new(url).post body: json
+  http.errback  do
+    STDERR.puts "#{http.response_header.status} from #{http.req.uri}:"
+    STDERR.puts http.response
+  end
+  http.callback do
+    puts 'done.'
+    if http.response != ''
+      STDERR.puts http.response
+    end
+  end
+end
+
+class NginxAccessLogEventProvider
+  def initialize(ssh_args, hostname, tail_command)
+    @ssh_args     = ssh_args
+    @hostname     = hostname
+    @tail_command = tail_command
+  end
+  def run_with_callback
+    EventMachine::Ssh.start(*@ssh_args) do |conn|
+      conn.errback do |e|
+        STDERR.puts "#{e} (#{e.class})"
+      end
+      conn.callback do |ssh|
+        channel = ssh.open_channel do |ch|
+          ch.exec @tail_command do |ch, success|
+            #raise 'could not execute command' unless success
+            ch.on_data do |c, data| # (output to stdout)
+              events = data.split("\n").map do |line|
+                line_to_event(line)
+              end
+              yield events.compact if events.size > 0
+            end
+            ch.on_extended_data do |c, type, data| # (output to stderr)
+              $stderr.print data
+            end
+          end
+        end
+      end
+    end
+  end
+  def line_to_event(line)
+    if match = line.match(%r@(?<ip_address>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(?<timestamp>\d{2}\/[a-z]{3}\/\d{4}:\d{2}:\d{2}:\d{2} (\+|\-)\d{4})\] ((\"(?<method>[A-Z]+) )(?<path>[^ ]+) (http\/1\.[01]")) (?<status_code>\d{3}) (?<num_bytes>\d+) (["](?<referer>(\-)|(.+))["]) (["](?<useragent>.+)["])@i)
+      since_epoch = Time.parse(match[:timestamp].sub(':', ' ')).to_i
+      is_monitis = match[:useragent].include?('monitis')
+      event = {
+        time:        since_epoch,
+        hostname:    @hostname,
+        ip_address:  match[:ip_address],
+        method:      match[:method],
+        path:        match[:path],
+        status_code: match[:status_code],
+        num_bytes:   match[:num_bytes],
+        is_monitis:  is_monitis,
+      }
+      event
+    else
+      $stderr.puts "Doesn't match regex: #{line}"
+      nil
+    end
+  end
+end
+
 EventMachine.run do
   app = HelloApp.new
   Rack::Server.start({
@@ -88,57 +169,14 @@ EventMachine.run do
   end
   end
 
-  EventMachine::Ssh.start('basicruby.danstutzman.com', 'root',
-                          passphrase: File.read('passphrase').strip) do |conn|
-    conn.errback do |e|
-      STDERR.puts "#{e} (#{e.class})"
-    end
-    conn.callback do |ssh|
-      channel = ssh.open_channel do |ch|
-        command = 'docker exec 9bb32 tail -f /var/log/nginx/access.log'
-        ch.exec command do |ch, success|
-          #raise 'could not execute command' unless success
-          ch.on_data do |c, data| # (output to stdout)
-            data.split("\n").each do |line|
-              if match = line.match(%r@(?<ipaddress>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(?<timestamp>\d{2}\/[a-z]{3}\/\d{4}:\d{2}:\d{2}:\d{2} (\+|\-)\d{4})\] ((\"(?<method>[A-Z]+) )(?<path>[^ ]+) (http\/1\.[01]")) (?<status>\d{3}) (?<bytes>\d+) (["](?<referer>(\-)|(.+))["]) (["](?<useragent>.+)["])@i)
-                since_epoch = Time.parse(match[:timestamp].sub(':', ' ')).to_i
-                $stdout.puts match[:ipaddress], since_epoch
-                is_monitis = match[:useragent].include?('monitis')
-
-
-      print 'Posting to InfluxDB...'
-      url = 'http://localhost:8086/db/root/series?u=root&p=root&time_precision=s'
-      json = [{
-        name: 'nginx_access_logs',
-        columns: %w[time       hostname     ip_address         method
-                    path       status       bytes              is_monitis],
-        points: [[since_epoch, 'basicruby', match[:ipaddress], match[:method],
-                  match[:path], match[:status], match[:bytes], is_monitis]],
-      }].to_json
-      http = EventMachine::HttpRequest.new(url).post body: json
-      http.errback  do
-        STDERR.puts "#{http.response_header.status} from #{http.req.uri}:"
-        STDERR.puts http.response
-      end
-      http.callback do
-        puts 'done.'
-        if http.response != ''
-          STDERR.puts http.response
-        end
-      end
-
-
-              else
-                $stderr.puts "Doesn't match regex: #{line}"
-              end
-            end
-          end
-          ch.on_extended_data do |c, type, data| # (output to stderr)
-            $stderr.print data
-          end
-        end
-      end
-    end
+  passphrase   = File.read('passphrase').strip
+  ssh_args     = ['basicruby.danstutzman.com', 'root',
+                  { passphrase: passphrase }]
+  tail_command = 'docker exec 9bb32 tail -f /var/log/nginx/access.log'
+  provider     = NginxAccessLogEventProvider.new(
+                   ssh_args, 'basicruby', tail_command)
+  provider.run_with_callback do |events|
+    post_events_to_influxdb 'nginx_access_logs', events
   end
 
 end
