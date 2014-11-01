@@ -37,7 +37,7 @@ end
 
 def post_events_to_influxdb(series_name, events)
   print 'Posting to InfluxDB...'
-  url = 'http://localhost:8086/db/root/series?u=root&p=root&time_precision=s'
+  url = 'http://localhost:8086/db/root/series?u=root&p=root'
 
   all_keys = {}
   events.each do |event|
@@ -67,9 +67,11 @@ end
 
 class NginxAccessLogEventProvider
   def initialize(ssh_args, hostname, tail_command)
-    @ssh_args     = ssh_args
-    @hostname     = hostname
-    @tail_command = tail_command
+    @ssh_args                   = ssh_args
+    @hostname                   = hostname
+    @tail_command               = tail_command
+    @previous_timestamp         = nil
+    @sequence_in_same_timestamp = nil
   end
   def run_with_callback
     EventMachine::Ssh.start(*@ssh_args) do |conn|
@@ -96,19 +98,38 @@ class NginxAccessLogEventProvider
   end
   def line_to_event(line)
     if match = line.match(%r@(?<ip_address>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - - \[(?<timestamp>\d{2}\/[a-z]{3}\/\d{4}:\d{2}:\d{2}:\d{2} (\+|\-)\d{4})\] ((\"(?<method>[A-Z]+) )(?<path>[^ ]+) (http\/1\.[01]")) (?<status_code>\d{3}) (?<num_bytes>\d+) (["](?<referer>(\-)|(.+))["]) (["](?<useragent>.+)["])@i)
-      since_epoch = Time.parse(match[:timestamp].sub(':', ' ')).to_i
+      seconds_since_epoch = Time.parse(match[:timestamp].sub(':', ' ')).to_i
       is_monitis = match[:useragent].include?('monitis')
-      event = {
-        time:        since_epoch,
-        hostname:    @hostname,
-        ip_address:  match[:ip_address],
-        method:      match[:method],
-        path:        match[:path],
-        status_code: match[:status_code],
-        num_bytes:   match[:num_bytes],
-        is_monitis:  is_monitis,
-      }
-      event
+      if @previous_timestamp.nil?
+        # ignore this log line, since there could have been logs above it
+        # within the same second, so we don't know what millisecond suffix
+        # to give it.
+        @previous_timestamp = match[:timestamp]
+        nil
+      elsif match[:timestamp] == @previous_timestamp
+        if @sequence_in_same_timestamp.nil?
+          # Can't increment it; shouldn't emit event
+        else
+          @sequence_in_same_timestamp += 1
+        end
+      else
+        @previous_timestamp = match[:timestamp]
+        @sequence_in_same_timestamp = 1
+      end
+
+      if @sequence_in_same_timestamp != nil
+        milliseconds = seconds_since_epoch * 1000 + @sequence_in_same_timestamp
+        {
+          time:        milliseconds,
+          hostname:    @hostname,
+          ip_address:  match[:ip_address],
+          method:      match[:method],
+          path:        match[:path],
+          status_code: match[:status_code],
+          num_bytes:   match[:num_bytes],
+          is_monitis:  is_monitis,
+        }
+      end
     else
       $stderr.puts "Doesn't match regex: #{line}"
       nil
